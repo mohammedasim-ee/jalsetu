@@ -1,6 +1,7 @@
 """One-line purpose of each endpoint, injected into the OpenAPI schema (shown at /docs, /api and in API.md)."""
 DESCRIPTIONS = {
     ("get", "/api/health"): "Server status: database, schema version, data mode, pipeline and model versions, counts",
+    ("get", "/api/admin-setup-status"): "Diagnose admin login: whether ADMIN_* settings are present and match the account (no secrets)",
     ("get", "/api/meta"): "Areas, report categories and statuses, tanker sizes, reuse categories",
     ("get", "/api/areas"): "v1 compatibility: areas and categories",
     ("get", "/api/overview"): "Dashboard in one call: risk score, warnings, all indicators with provenance",

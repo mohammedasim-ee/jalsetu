@@ -156,6 +156,13 @@ def _admin_exists() -> bool:
         return False
 
 
+@app.get("/api/admin-setup-status")
+def admin_setup_status():
+    """Diagnose admin login: which settings the server sees (never the password)."""
+    auth.ensure_admin_from_env()
+    return auth.admin_setup_status()
+
+
 @app.get("/api/meta")
 def meta():
     from . import exchange

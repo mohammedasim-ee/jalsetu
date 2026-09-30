@@ -153,3 +153,15 @@ def test_admin_login_applies_current_settings_and_health_reports_it(c, monkeypat
     assert h == {"settings_present": True, "password_long_enough": True, "account_exists": True}
     monkeypatch.setenv("ADMIN_PASSWORD", "correct-horse-battery")
     assert c.post("/api/auth/login", json={"email": "admin@jalsetu.test", "password": "correct-horse-battery"}).status_code == 200
+
+
+def test_admin_setup_status_and_quoted_values(c, monkeypatch):
+    s = c.get("/api/admin-setup-status").json()
+    assert s["ADMIN_EMAIL_set"] and s["ADMIN_PASSWORD_set"] and s["account_for_that_email"] == "admin"
+    assert s["account_password_matches_setting"] is True and "correct-horse" not in str(s)
+    monkeypatch.setenv("ADMIN_PASSWORD", '"quoted-pass-123"')
+    s = c.get("/api/admin-setup-status").json()
+    assert s["password_had_quotes_or_spaces"] is True and s["account_password_matches_setting"] is True
+    assert c.post("/api/auth/login", json={"email": "admin@jalsetu.test", "password": "quoted-pass-123"}).status_code == 200
+    monkeypatch.setenv("ADMIN_PASSWORD", "correct-horse-battery")
+    auth.ensure_admin_from_env()

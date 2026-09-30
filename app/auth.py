@@ -77,7 +77,7 @@ def public_user(u: dict) -> dict:
 
 def login(email: str, password: str) -> tuple[str, dict]:
     email = email.strip().lower()
-    if email and email == os.environ.get("ADMIN_EMAIL", "").strip().lower():
+    if email and email == admin_env()[0]:
         ensure_admin_from_env()   # apply the current ADMIN_* settings even if startup ran before they changed
     u = db.one("SELECT * FROM users WHERE email=?", (email,))
     # verify against a dummy hash when the user doesn't exist, so timing doesn't reveal which emails exist
@@ -137,9 +137,33 @@ def require(*roles: str):
     return dep
 
 
+def _clean(v: str) -> str:
+    v = v.strip()
+    if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":   # value pasted with quotes around it
+        v = v[1:-1].strip()
+    return v
+
+
+def admin_env() -> tuple[str, str]:
+    return _clean(os.environ.get("ADMIN_EMAIL", "")).lower(), _clean(os.environ.get("ADMIN_PASSWORD", ""))
+
+
+def admin_setup_status() -> dict:
+    """What the server sees for the admin settings. Never returns the password or its length."""
+    raw_email, raw_pw = os.environ.get("ADMIN_EMAIL"), os.environ.get("ADMIN_PASSWORD")
+    email, pw = admin_env()
+    u = db.one("SELECT role, password_hash FROM users WHERE email=?", (email,)) if email else None
+    masked = (email[0] + "***" + email[email.index("@"):]) if "@" in email else ("(not an email)" if email else None)
+    return {"ADMIN_EMAIL_set": raw_email is not None and bool(email), "ADMIN_PASSWORD_set": raw_pw is not None and bool(pw),
+            "email_seen_by_server": masked, "password_at_least_8": len(pw) >= 8,
+            "password_had_quotes_or_spaces": raw_pw is not None and raw_pw != pw,
+            "account_for_that_email": (u["role"] if u else None),
+            "account_password_matches_setting": bool(u and pw and verify_password(pw, u["password_hash"]))}
+
+
 def ensure_admin_from_env() -> Optional[int]:
     """Create or update the admin account from ADMIN_EMAIL / ADMIN_PASSWORD (never hard-coded)."""
-    email, pw = os.environ.get("ADMIN_EMAIL", "").strip().lower(), os.environ.get("ADMIN_PASSWORD", "").strip()
+    email, pw = admin_env()
     if not email or not pw:
         return None
     if len(pw) < 8:   # same minimum as every account; never take the whole site down over a bad setting
