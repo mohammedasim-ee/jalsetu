@@ -1,167 +1,162 @@
 # JalSetu (ಜಲಸೇತು): water security for Bengaluru
 
-Live: https://jalsetu-smoky.vercel.app · Admin: `/admin` · API: `/api` (offline list) and `/docs` (interactive)
+**Live:** https://jalsetu-smoky.vercel.app · **Admin:** [`/admin`](https://jalsetu-smoky.vercel.app/admin) · **API:** [`/api`](https://jalsetu-smoky.vercel.app/api) (list) and [`/docs`](https://jalsetu-smoky.vercel.app/docs) (interactive)
 
-## 1. Overview
+Bengaluru is short of water on several fronts at once. The official CGWB 2024 assessment puts Bengaluru Urban's groundwater extraction at **186.7%** of recharge. This monsoon the district received **48% less rain than normal** (IMD, 1 Jun – 28 Sep 2026). Piped supply (~1,935 MLD) is below demand (~2,600 MLD), and none of 149 monitored lakes met KSPCB class A–C. These facts sit in separate IMD, CGWB, KSPCB and BWSSB documents. Citizens can't turn them into a decision, and what communities know (dry borewells, tanker prices) isn't recorded anywhere.
 
-JalSetu is a working prototype of a data-driven urban water-security and early-warning platform for Bengaluru. It answers four questions: what is happening to the city's water, what could happen next, why the risk is changing, and what practical action can be taken. Every figure shows its source, date and status. **Nothing is presented as a live government feed**: official figures are entered from published bulletins, and the pipeline validates their provenance.
+JalSetu is a working prototype of a data-driven water-security and early-warning platform. It answers four questions: **what is happening** to the city's water, **what could happen next**, **why the risk is changing**, and **what to do**. It combines published data, an explainable risk score, machine learning with honest evaluation, a ward map, early warnings, community reports reviewed by an admin, and a treated-water exchange.
 
-## 2. Problem
+> **Data status:** every figure shows its source, date and status. Official figures are entered from published bulletins, and the pipeline checks their provenance. **Nothing is presented as a live government feed.** Demo mode (`JALSETU_DEMO=1`) adds invented rows marked DEMO, which never count toward the score.
 
-Bengaluru is short of water on several fronts at once, and the facts that show it are spread across different sources:
+![Overview: risk score with its six weighted components](docs/screenshots/01-overview.png)
 
-- **Groundwater.** The official CGWB 2024 assessment puts Bengaluru Urban's groundwater extraction at **186.7%** of recharge, which makes it over-exploited. In 2024, 6,900 of 13,900 city borewells dried up.
-- **Rain.** This monsoon, Bengaluru Urban received **48% less rain than normal** (IMD, 1 Jun – 28 Sep 2026).
-- **Supply.** Piped supply (~1,935 MLD) is below demand (~2,600 MLD).
-- **Lakes.** None of 149 monitored lakes met KSPCB class A–C.
-
-These facts sit in IMD, CGWB, KSPCB and BWSSB documents and in news reports. Citizens can't turn them into a decision, and community knowledge such as dry borewells and tanker prices isn't recorded anywhere.
-
-## 3. Solution
-
-One system: **real data → validation → processing → analytics → explainable risk engine → ML (with honest evaluation) → GIS → early warnings → actions.** Communities add verified reports, and a matcher connects surplus treated sewage water with non-drinking uses.
-
-## 4. Architecture
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) (diagram and request flow).
-
-- **Server:** FastAPI (Python), with PostgreSQL on Neon in production and SQLite locally.
-- **Pipeline:** a reproducible data pipeline over real datasets.
-- **ML:** models trained offline and exported to JSON for pure-Python inference.
-- **Frontend:** vanilla JS with a locally bundled Leaflet map.
-- **Hosting:** Vercel.
-
-## 5. Features
+## What it does
 
 | Module | What works | Data status |
 | --- | --- | --- |
 | Overview | Risk score 0–100 with six weighted, explained components; data freshness; early warnings with triggers and actions; 8 indicator cards with source, period, dates, status; risk history | Official/published (historical) + live DB |
 | Rainfall analytics | 117-year (1901–2017) monsoon chart, anomalies (mm and %), IMD categories, 10-year moving average, OLS trend with CI, Mann-Kendall test, monthly anomaly chart per year | IMD 1901–2017 (historical, regional) |
-| ML | Deficient-monsoon classifier with per-prediction explanation; forecaster (climatology won); Isolation Forest unusual-month detector; full metrics shown in the app | Trained on IMD data; see MODEL_REPORT.md |
+| ML | Deficient-monsoon classifier with per-prediction explanation; forecaster (climatology won); Isolation Forest unusual-month detector; full metrics shown in the app | Trained on IMD data; see [MODEL_REPORT.md](MODEL_REPORT.md) |
 | Map (GIS) | 243 BBMP wards, lakes, reports, treated-water offers and requests; layer toggles, category and status filters, ward click panel, ward shading by report count | KGIS/DataMeet, Wikipedia. Ward risk is shown as **unavailable**, not faked |
 | Reservoirs | Latest per reservoir, % full, trend when two or more readings exist, admin ingestion with source | News report of official figures |
 | Groundwater | Official extraction stage (real) shown separately from the modelled city water balance (estimate) | CGWB 2024 / WELL Labs |
 | Lakes | List, ward, location source, city quality summary, admin-added observations | KSPCB summary; per-lake series unavailable |
-| Community reports | 7 categories, area or exact map point or GPS, photo, status workflow SUBMITTED → UNDER_REVIEW → VERIFIED → RESOLVED / REJECTED, history | Live DB |
+| Community reports | 7 categories, area or exact map point or GPS, photo, status workflow SUBMITTED → UNDER_REVIEW → VERIFIED → RESOLVED / REJECTED, history; reporters can delete their own reports | Live DB |
 | Treated-water exchange | Organization offers (quantity, treatment level, BOD/TSS, dates, approved uses); requests (quantity, dates, purpose, minimum treatment); ranked matching; savings; unmet demand | Live DB; ₹10/kL BWSSB price |
 | Water quality | 18 IS 10500:2012 parameters → Safe / High / Unsafe with explanation | BIS standard |
 | Rainwater harvesting | BWSSB mandatory rule, storage, monthly and annual harvest (rainfall × area × runoff × efficiency), penalty avoided, choice of rainfall series | BWSSB rules; rainfall options labelled |
-| Accounts and admin | Citizen / organization / admin; admin dashboard: reports review, warnings, data freshness, API health, ML info, predictions, audit log, reservoir ingestion | – |
-| Demo mode | `JALSETU_DEMO=1` adds invented rows marked DEMO, shows a "DATA MODE: DEMONSTRATION" banner, and never counts them in the score | Demonstration |
+| Accounts and admin | Citizen / organization / admin roles; admin dashboard: report review, delete report or photo, users and roles, warnings, data freshness, API health, ML info, predictions, audit log, reservoir ingestion | – |
 
-## 6. Tech stack
+## Screenshots
+
+Taken from the real app running locally. The map tiles and web font need internet access, which the machine that took them didn't have. That is why the map shows ward outlines on a plain background.
+
+| | |
+| --- | --- |
+| ![Risk explanation](docs/screenshots/02-risk-explanation.png) Every point of the score traced to its source and date | ![Early warnings](docs/screenshots/03-early-warnings.png) Early warnings with the rule that fired |
+| ![117 years of rain](docs/screenshots/04-rainfall-117-years.png) 117 years of IMD monsoon rain, trend and significance test | ![ML prediction](docs/screenshots/05-ml-prediction.png) ML prediction for 2002, with the contribution of each input |
+| ![Model evaluation](docs/screenshots/06-model-evaluation.png) Honest evaluation: the model is compared with a simple rule and an average | ![Map](docs/screenshots/07-map-wards.png) 243 BBMP wards and 7 lakes; click a ward for its details |
+| ![Report form](docs/screenshots/08-report-form.png) Community report with photo and exact location | ![Water quality](docs/screenshots/09-water-quality.png) IS 10500:2012 check: nitrate 60 mg/L is unsafe |
+| ![Rainwater harvesting](docs/screenshots/10-rainwater-harvesting.png) Rainwater-harvesting planner with the BWSSB rule | ![Treated-water exchange](docs/screenshots/11-treated-water-exchange-demo.png) Treated-water exchange (demo mode: rows marked DEMO) |
+| ![Admin dashboard](docs/screenshots/12-admin-dashboard-demo.png) Admin review, status workflow and delete (demo mode) | ![Phone](docs/screenshots/13-phone-dark.png) ![Phone map](docs/screenshots/14-phone-map.png) Phone, dark mode |
+
+## Architecture
+
+**Real data → validation → processing → analytics → explainable risk engine → ML (with honest evaluation) → GIS → early warnings → actions.** Diagram and request flow: [ARCHITECTURE.md](ARCHITECTURE.md).
 
 | Area | Technology | Why |
 | --- | --- | --- |
-| Server | Python 3.12, FastAPI, Pydantic | Validation built in, OpenAPI docs |
-| Database | psycopg 3 (Postgres) / sqlite3 | Same SQL on both; managed Postgres on Vercel |
-| Images | Pillow | Re-encodes uploads safely |
-| ML (offline) | scikit-learn 1.5.2, numpy | Training only; not needed at runtime |
-| Map | Leaflet 1.9.4 | Open-source; bundled locally |
+| Server | Python, FastAPI, Pydantic | Validation built in, OpenAPI docs |
+| Database | PostgreSQL on Neon (production), SQLite (local); psycopg 3 | Same SQL on both; versioned migrations |
+| Images | Pillow | Uploads re-encoded to JPEG; size and dimension limits |
+| ML (offline) | scikit-learn 1.5.2, numpy | Training only; models exported to JSON, run in pure Python |
+| Frontend | Vanilla JS, SVG charts, Leaflet 1.9.4 (bundled) | No build step; strict Content Security Policy |
 | Optional AI | Anthropic API | Photo checks; everything works without it |
 | Tests | pytest, Playwright, node:test | Unit, integration, browser |
 | Quality | ruff (incl. security rules), mypy | Lint and type checking |
+| Hosting | Vercel (`api/index.py`) | Serverless; photos are stored in the database, not on disk |
 
-## 7. Data sources
-
-[DATA_SOURCES.md](DATA_SOURCES.md) lists every dataset with source, URL, period, retrieval date, status, processing and limitations.
-
-## 8. Data pipeline
-
-```
-python pipeline/run_pipeline.py
-```
-
-`data/raw` → validation (missing, negative, duplicate, sum checks; provenance required) → cleaning → normalisation → features (climatology, anomalies, categories, moving averages, trends; ward simplification and point-in-polygon) → `data/processed` plus `manifest.json` (SHA-256 of every input and output). The run is deterministic: the same inputs always give byte-identical outputs, and this is tested.
-
-## 9. ML pipeline
-
-```
-pip install -r requirements-ml.txt
-python ml/train.py
-```
-
-Preprocessing and features (`ml/features.py`, training-period baselines only, so there is no leakage) → time-series validation → metrics → export to JSON (`ml/export.py`) → pure-Python inference (`app/ml_runtime.py`, tested equal to scikit-learn) → predictions logged with model version. Results: [MODEL_REPORT.md](MODEL_REPORT.md). Card: [ML_MODEL_CARD.md](ML_MODEL_CARD.md).
-
-## 10. API
-
-57 endpoints. [API.md](API.md) is generated from the OpenAPI schema by `python scripts/gen_api_docs.py`.
-
-## 11. Database schema
-
-Versioned migrations are in `app/db.py`; the applied version is recorded in `schema_migrations` (currently 3).
-
-| Table | Purpose |
-| --- | --- |
-| `users` | Email, name, role, organization, scrypt hash |
-| `sessions` | SHA-256 of token, expiry |
-| `reports` | Category, area, lat/lng, ward, description, tanker price/size, photo, AI check, status, demo flag |
-| `report_events` | Status history with actor and note |
-| `offers` / `requests` | Treated-water exchange |
-| `risk_scores` | Snapshots with component points and input hash |
-| `warnings` | Active/inactive with first and last seen |
-| `model_predictions` | Model, version, inputs, output, time |
-| `reservoir_readings` / `lake_observations` | Admin-ingested data with source URL |
-| `audit_logs` | Actor, action, target, detail, IP, time |
-| `listings` | v1 table, kept for compatibility |
-
-## 12. Installation
+## Run it
 
 Needs Python 3.10+.
 
 ```
-pip install -r requirements.txt            # to run
-pip install -r requirements-dev.txt        # to test, lint, retrain
+pip install -r requirements.txt
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='a-long-password' uvicorn app.main:app --reload
 ```
 
-## 13. Environment variables
+Open http://localhost:8000, and http://localhost:8000/admin for the admin dashboard. Add `JALSETU_DEMO=1` to see labelled demonstration rows.
 
-See [.env.example](.env.example).
+### Environment variables ([.env.example](.env.example))
 
 | Variable | Purpose |
 | --- | --- |
 | `DATABASE_URL` | Postgres; empty = SQLite |
-| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Creates the admin account (password 8+ characters) |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Creates the admin account (password 8+ characters). More admins can be made from the dashboard. |
 | `ANTHROPIC_API_KEY` | Optional AI |
 | `JALSETU_DEMO=1` | Demo rows |
 | `CORS_ORIGINS` | Other sites allowed to call the API |
 | `JALSETU_WRITE_LIMIT`, `JALSETU_LOGIN_LIMIT` | Rate limits |
 
-## 14. Running locally
+### Deploy (Vercel + Neon)
 
-```
-ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='a-long-password' uvicorn app.main:app --reload
-```
-
-Open http://localhost:8000, and http://localhost:8000/admin for the admin dashboard.
-
-## 15. Testing
-
-See [TESTING.md](TESTING.md).
-
-```
-pytest
-node --test static/js/lib.test.js
-ruff check .
-python -m mypy
-```
-
-Latest run (30 Sep 2026):
-- **pytest:** 127 passed (backend, pipeline, ML, and 9 browser end-to-end tests); the 118 non-browser tests also pass on PostgreSQL 16.
-- **QA script** (`scripts/qa_audit.py`, local server only): 64 of 64 checks passed on SQLite and on PostgreSQL 16.
-- **node:** 9 passed.
-- **ruff and mypy:** clean.
-
-## 16. Deployment (Vercel + Neon)
-
-1. Push to GitHub. Vercel builds `api/index.py` (`vercel.json`); the bundle contains no ML libraries (~2 MB of app files).
-2. Storage → Neon Postgres → connect. This sets `DATABASE_URL`, and migrations run automatically on first start, including upgrading a v1 database.
+1. Push to GitHub. Vercel builds `api/index.py` (`vercel.json`); the bundle contains no ML libraries.
+2. Storage → Neon Postgres → connect. This sets `DATABASE_URL`; migrations run automatically on first start.
 3. Settings → Environment Variables: set `ADMIN_EMAIL` and `ADMIN_PASSWORD`; optionally `ANTHROPIC_API_KEY`.
-4. Redeploy.
+4. Redeploy. Check `/api/health` (`"database":"postgres"`) and `/api/admin-setup-status` (never shows the password).
 
 Also works on Render (`render.yaml`) or Docker (`Dockerfile`).
 
-## 17. Limitations (honest)
+### Data and models
+
+```
+python pipeline/run_pipeline.py            # rebuild data/processed (deterministic, byte-identical reruns)
+pip install -r requirements-ml.txt
+python ml/train.py                         # retrain and re-evaluate; exports JSON to ml/artifacts
+```
+
+## Tests
+
+```
+pip install -r requirements-dev.txt
+pytest                                     # backend, pipeline, ML and browser end-to-end tests
+node --test static/js/lib.test.js          # frontend unit tests
+ruff check . && python -m mypy             # lint and types
+```
+
+Latest run (30 Sep 2026):
+
+- **pytest:** 127 passed, including 9 browser end-to-end tests. The 118 non-browser tests also pass on PostgreSQL 16.
+- **node:** 9 passed.
+- **ruff and mypy:** clean.
+- **QA script** (`scripts/qa_audit.py`, local server only): 64 of 64 checks passed on SQLite and on PostgreSQL 16. It covers accounts, sessions, admin authorization, report review and deletion, photo upload and removal, and persistence across a restart.
+
+Details, and the failing cases the system handles: [TESTING.md](TESTING.md).
+
+## Documentation
+
+| Document | Contents |
+| --- | --- |
+| [docs/PROJECT_REPORT.md](docs/PROJECT_REPORT.md) ([PDF](docs/JalSetu_Project_Report.pdf)) | Complete project report: problem, gap, objectives, design, results, evaluation, limitations |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Components, request flow, database |
+| [DATA_SOURCES.md](DATA_SOURCES.md) | Every dataset: source, URL, period, retrieval date, status, processing, limitations |
+| [MODEL_REPORT.md](MODEL_REPORT.md), [ML_MODEL_CARD.md](ML_MODEL_CARD.md) | ML method, validation, metrics, baselines, intended use |
+| [docs/water-risk-methodology.md](docs/water-risk-methodology.md) | Risk score formula, weights, anchor points, warning rules |
+| [docs/water-quality-standards.md](docs/water-quality-standards.md) | IS 10500:2012 limits used |
+| [docs/rainwater-harvesting-methodology.md](docs/rainwater-harvesting-methodology.md) | Harvest formula and BWSSB rules |
+| [API.md](API.md) | All 57 endpoints (generated from the OpenAPI schema) |
+| [SECURITY.md](SECURITY.md) | Threat model, authentication, uploads, headers |
+| [TESTING.md](TESTING.md) | Test suites and what they cover |
+| [AUDIT.md](AUDIT.md) | Audit of version 1 and what changed in version 2 |
+| [DEMO_SCRIPT.md](DEMO_SCRIPT.md) | 5-minute demo and what to do if something fails |
+| [CLAUDE.md](CLAUDE.md) | Rules for working on this repository with Claude Code |
+
+## Repository layout
+
+```
+jalsetu/
+  api/index.py          Vercel entry point
+  app/                  FastAPI server
+    main.py             app setup, security headers, health, startup and migrations
+    auth.py             accounts, scrypt hashing, sessions, roles, admin bootstrap
+    routes_data.py      read APIs: risk, rainfall, ML, reservoirs, groundwater, lakes, GIS
+    routes_community.py accounts, community reports and photos, treated-water exchange
+    routes_admin.py     admin: review, delete, users and roles, ingestion, audit log
+    risk.py             explainable risk score and early-warning rules
+    ml_runtime.py       pure-Python inference and explanations from exported models
+    db.py               SQLite/PostgreSQL adapter and versioned migrations
+  config/               risk weights and anchor points (risk_config.json)
+  data/raw/             original datasets (IMD, KGIS wards, lakes, official indicators)
+  data/processed/       validated, processed outputs + manifest with SHA-256 hashes
+  pipeline/             reproducible data pipeline (stdlib only)
+  ml/                   feature building, training, evaluation, export; artifacts/*.json
+  static/               website and admin dashboard (HTML, CSS, vanilla JS, Leaflet)
+  tests/                pytest suites and Playwright end-to-end tests
+  scripts/              API doc generator, black-box QA script
+  docs/                 project report, methodologies, screenshots
+```
+
+## Known limitations
 
 - **No live feeds.** Official figures are entered by hand; there are no live government feeds and no IoT sensors.
 - **Secondary sources.** Some official figures come from news reports of them: reservoir levels, the CGWB stage, the KSPCB summary.
@@ -175,12 +170,8 @@ Also works on Render (`render.yaml`) or Docker (`Dockerfile`).
 - **Map tiles need internet.** OpenStreetMap tiles need a connection; the ward outlines don't.
 - **Arsenic limit to recheck.** Confirm the arsenic permissible limit against the latest BIS amendment.
 
-## 18. Future work
+## Future work
 
 - **Better data:** KSNDMC reservoir bulletins and IMD daily district rainfall, ingested automatically where their terms allow; CGWB observation wells mapped to wards (which would make a ward risk layer possible); KSPCB monthly lake reports per lake.
 - **Better models:** retrain on official data after 2017 (IMD) and probability calibration.
-- **Accounts:** httpOnly cookie sessions, organization verification, and Kannada language support.
-
----
-
-Also in this repository: [AUDIT.md](AUDIT.md) (before and after), [SECURITY.md](SECURITY.md), [DEMO_SCRIPT.md](DEMO_SCRIPT.md), `docs/` (risk, water-quality and rainwater methodologies).
+- **Accounts:** httpOnly cookie sessions, organization verification, password reset, and Kannada language support.

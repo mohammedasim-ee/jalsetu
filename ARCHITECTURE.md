@@ -59,7 +59,7 @@ flowchart TD
 | Analytics | Rainfall anomaly, trend, moving average, IMD categories | `pipeline/rainfall.py`, `/api/rainfall` |
 | ML engine | Trained offline; exported JSON; pure-Python inference; predictions logged | `ml/`, `app/ml_runtime.py` |
 | Risk engine | Configurable weighted index + warning rules + snapshots | `app/risk.py`, `config/risk_config.json` |
-| API | ~45 REST endpoints, JSON errors, status codes, OpenAPI at `/docs`, offline list at `/api` | `app/main.py`, `app/routes_*.py` |
+| API | 57 REST endpoints, JSON errors, status codes, OpenAPI at `/docs`, offline list at `/api` | `app/main.py`, `app/routes_*.py` |
 | Auth | citizen / organization / admin; admin created from environment variables | `app/auth.py` |
 | Frontend | Vanilla JS; no build step; Leaflet 1.9.4 bundled locally; SVG charts | `static/` |
 | Observability | JSON log per request (request ID, status, ms), error references, health endpoint (DB, schema, data and model versions), audit log | `app/common.py`, `/api/health`, `/api/admin/*` |
@@ -75,7 +75,7 @@ flowchart TD
 
 1. The browser shrinks the photo, then POSTs a multipart form with the category and an area or map point.
 2. The server validates the category, location (inside Bengaluru; ward found by point-in-polygon), tanker price and size, and the rate limit.
-3. It re-encodes the photo with Pillow, which blocks non-images and files over 8 MB.
+3. It re-encodes the photo with Pillow, which blocks non-images, files over 8 MB and images over 60 megapixels (checked from the header before decoding).
 4. Optional: AI checks the photo. On any failure the report still saves, marked "not checked".
 5. The server inserts the report as SUBMITTED, adds a `report_events` row, and writes a log line.
 6. An admin moves it to UNDER_REVIEW, then VERIFIED or REJECTED, then RESOLVED. Transitions are allowed by a state machine, and every change is written to the audit log.
