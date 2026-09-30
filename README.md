@@ -147,7 +147,7 @@ python -m mypy
 ```
 
 Latest run (30 Sep 2026):
-- **pytest:** 119 passed (backend, pipeline, ML, and 8 browser end-to-end tests), on both SQLite and PostgreSQL 16 for the non-browser suites.
+- **pytest:** 120 passed (backend, pipeline, ML, and 9 browser end-to-end tests), on both SQLite and PostgreSQL 16 for the non-browser suites.
 - **node:** 9 passed.
 - **ruff and mypy:** clean.
 

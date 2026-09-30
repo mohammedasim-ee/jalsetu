@@ -37,7 +37,7 @@ Full tables are in MODEL_REPORT.md.
 ## Known limitations and risks
 
 - **Region and period.** The data is regional and ends in 2017.
-- **Tiny positive class.** Recall moves by about 0.17 per season; the model scores the 2016 drought at 0.46, just under its 0.5 cut-off.
+- **Tiny positive class.** Recall moves by about 0.17 per season; the model scores the 2016 drought at 33/100 (missed), because its deficit came in August–September, after the end-of-July prediction point.
 - **Uncalibrated probabilities.** The classifier's probabilities come from class-balanced training, so the website presents them as a "risk score".
 - **Possible misreading.** Someone could mistake the risk score for an official forecast. Every result on the website carries the model name, version, generation time, region, and a note that it is not an official forecast.
 

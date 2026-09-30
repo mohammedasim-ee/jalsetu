@@ -101,7 +101,7 @@ async function loadOverview() {
   $("riskPanel").innerHTML = `
     <div class="row between"><h2>Bengaluru water risk</h2><span class="pill ${levelClass(r.level)}">${esc(r.level)}</span></div>
     <div class="risk">${riskGauge(r)}<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
-      <p style="font-size:14.5px"><b>Why ${nf(r.score, 0)}?</b> The score adds up six weighted indicators. Each is scaled 0–100 between documented anchor points, so every point can be traced to an official figure.</p>
+      <p style="font-size:14.5px"><b>Why ${nf(r.score, 0)}?</b> The score adds up six weighted indicators. Each is scaled 0–100 between documented anchor points, so every point can be traced to a published figure and its source.</p>
       <p class="src">Computed ${esc(ago(r.computed_at))} · config ${esc(r.config_version)} · <a href="${GH}docs/water-risk-methodology.md" target="_blank" rel="noopener">methodology</a></p></div></div>
     <div class="contrib lvl-${esc(r.level)}" role="table" aria-label="Contributing factors">
       ${r.components.map(c => `<span role="cell" title="${esc(c.why_anchor)}">${esc(c.indicator)}<br><small class="muted">${esc(nf(c.value, 1))}${esc(c.unit)} → ${nf(c.normalised, 0)}/100 × ${c.weight}</small></span>

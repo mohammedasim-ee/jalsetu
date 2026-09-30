@@ -7,7 +7,7 @@
 
 ## 0:00 Opening (20 s)
 
-> "JalSetu is a data-driven water-security platform for Bengaluru. It answers four questions: what is happening to the city's water, what could happen next, why the risk is changing, and what to do. It is a working prototype. The figures are official and published data, each shown with its source and date. It is not a live government feed."
+> "JalSetu is a data-driven water-security platform for Bengaluru. It answers four questions: what is happening to the city's water, what could happen next, why the risk is changing, and what to do. It is a working prototype. The figures are published data, most of them official, each shown with its source and date. It is not a live government feed."
 
 ## 0:20 Overview: the risk score and why (60 s)
 
@@ -28,7 +28,7 @@
 2. **Load a past year: 2002** → **Run the model**.
    > "At the end of July, the Random Forest gives a high deficient-monsoon risk score, and here is why: the June–July shortfall contributes most. The contributions add up exactly to the score. 2002 really was deficient, about −33%, though that year was in the training data."
 3. Scroll to **How accurate are the models?**
-   > "Honest result: on 87 test seasons the model catches 4 of 6 deficient monsoons, and it does not beat a simple rule on F1. It even scores the 2016 drought just under its cut-off. So the warning engine uses the rule, and the model is shown as a ranking score. And for next-month rainfall, no model beat the long-term average, so JalSetu uses the average and says so."
+   > "Honest result: on 87 test seasons the model catches 4 of 6 deficient monsoons, and it does not beat a simple rule on F1. It even misses the 2016 drought (33 out of 100), because June 2016 was wetter than normal and the rain failed only in August and September. So the warning engine uses the rule, and the model is shown as a ranking score. And for next-month rainfall, no model beat the long-term average, so JalSetu uses the average and says so."
 
 ## 2:40 Map (30 s)
 
@@ -54,7 +54,7 @@
 
 ## 4:40 Close (20 s)
 
-> "Everything I showed is tested: 119 automated Python tests, including a browser test that runs this exact journey, plus 9 frontend tests. The risk methodology, model report, data sources and security review are all in the repository. Limitations are documented too: regional rainfall data ends in 2015, some figures come from news reports of official data, and there is no ward-level risk."
+> "Everything I showed is tested: 120 automated Python tests, including a browser test that runs this exact journey, plus 9 frontend tests. The risk methodology, model report, data sources and security review are all in the repository. Limitations are documented too: the official regional rainfall data available ends in 2017, some figures come from news reports of official data, and there is no ward-level risk."
 
 ## If something fails
 

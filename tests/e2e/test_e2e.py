@@ -242,3 +242,18 @@ def test_admin_login_failure_explains_problem(base, browser):
     page.fill("#email", "someone@else.com"); page.click("#loginForm button")
     _wait(page, "document.querySelector('#loginErr').innerText.includes('not the admin email')")
     ctx.close()
+
+
+def test_maps_never_cover_the_bottom_tabs_on_phone(base, browser):
+    ctx, page, errors = _page(browser, viewport={"width": 390, "height": 844})
+    page.goto(base + "/"); page.wait_for_selector(".gauge b")
+    for v in ("map", "report"):
+        _tab(page, v); page.wait_for_timeout(600)
+        for y in range(0, 2400, 300):                     # scroll the page so the map passes under the tab bar
+            page.evaluate(f"window.scrollTo(0, {y})")
+            top = page.evaluate("""() => { const b = document.querySelector('nav.tabs button[data-v="quality"]').getBoundingClientRect();
+                return document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2).closest('nav.tabs') !== null; }""")
+            assert top, f"something covers the tab bar on the {v} tab at scroll {y}"
+    _tab(page, "quality")
+    assert not page.is_hidden("#v-quality")
+    ctx.close()

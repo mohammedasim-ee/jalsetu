@@ -173,3 +173,7 @@ label.cb input{width:auto}
 .leaflet-control-layers label{display:flex;gap:6px;align-items:center;font-size:13px;margin:2px 0}
 .leaflet-control-layers input{width:auto;margin:0}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Leaflet uses z-index up to 1000 inside the map; keep that inside the map box so it can never cover the bottom tabs */
+#map,#pickMap{position:relative;z-index:0;isolation:isolate}
+nav.tabs{z-index:1100}
+.toast{z-index:1200}

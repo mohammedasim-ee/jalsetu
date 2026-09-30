@@ -53,7 +53,7 @@ Confusion matrix of the Random Forest over the 87 test seasons:
 - **It does not beat the one-line rule on F1** (0.444 vs 0.471). The early-warning engine uses the transparent rule, and the Random Forest is shown alongside it as a ranking score.
 - **Its probabilities are not calibrated.** Training with balanced class weights gives a Brier score (0.083) worse than always predicting the base rate (0.069). The website labels the output "risk score, not a calibrated chance".
 - **There are only 6 positive test cases**, so each detection moves recall by about 0.17.
-- **Adding 2016–2017 lowered the scores** compared with the 1901–2015 version (F1 0.50 → 0.44, AUC 0.935 → 0.879). The 2016 drought is a hard case: its June was only slightly below normal, and even the model trained on all 117 years scores 2016 at 0.46, just below the 0.5 cut-off. This is reported rather than tuned away.
+- **Adding 2016–2017 lowered the scores** compared with the earlier run on 1901–2015 (F1 0.50 → 0.44, AUC 0.935 → 0.879; the earlier metrics are in the git history of `ml/artifacts/metrics.json`). The 2016 drought is a genuine blind spot for an end-of-July prediction: June 2016 was 22% **above** normal and July only 15% below, and the deficit came in August (−51%) and September (−54%). The website scores 2016 at 33/100 ("not likely deficient") even though it was deficient (−24%). This is reported rather than tuned away.
 
 **Explainability.** Each prediction is decomposed with path contributions (the Saabas / "treeinterpreter" method): probability = base value + sum of per-feature contributions, exactly. This is tested.
 
