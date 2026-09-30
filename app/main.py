@@ -47,6 +47,8 @@ CSP = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' 
 async def observe(request: Request, call_next):
     rid = request.headers.get("x-request-id") or uuid.uuid4().hex[:12]
     t0 = time.perf_counter()
+    if not _ready and request.url.path.startswith("/api"):
+        ensure_started()
     try:
         resp = await call_next(request)
     except Exception as e:                      # logged here, turned into JSON by the handler below
@@ -124,7 +126,23 @@ def seed_demo() -> int:
     return n
 
 
-startup()
+_ready = False
+
+
+def ensure_started() -> bool:
+    """Run migrations and admin setup. If the database is unreachable (e.g. Neon waking up or a bad DATABASE_URL),
+    don't crash the whole site: pages and data still load, and the next API request retries."""
+    global _ready
+    if not _ready:
+        try:
+            startup()
+            _ready = True
+        except Exception as e:
+            jlog("startup_db_unavailable", error=type(e).__name__)   # type only: connection errors can name hosts/users
+    return _ready
+
+
+ensure_started()
 
 
 # ------------------------------------------------------------------ meta
@@ -139,7 +157,7 @@ def health():
         jlog("health_counts_failed", error=str(e)[:200])
     m = ml_runtime.load("metrics.json") if ml_runtime.available() else None
     demo = bool(counts) and bool(db.one("SELECT id FROM reports WHERE is_demo=1 LIMIT 1"))
-    return {"ok": db.ping(), "version": VERSION, "ai": ai.enabled(), "database": db.DIALECT, "schema_version": db.schema_version(),
+    return {"ok": _ready and db.ping(), "version": VERSION, "ai": ai.enabled(), "database": db.DIALECT, "schema_version": db.schema_version() if _ready else None,
             "data_mode": "DEMONSTRATION + official data" if demo else "official data + community submissions",
             "data_pipeline": {"generated_at": ds.manifest()["generated_at"], "version": ds.manifest()["pipeline_version"]},
             "models": {"version": m["version"], "trained_at": m["trained_at"]} if m else None,

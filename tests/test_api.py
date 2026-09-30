@@ -179,6 +179,40 @@ def test_report_rejects_non_image_and_huge_file(c):
                   files={"photo": ("x.jpg", b"0" * (9 * 1024 * 1024), "image/jpeg")}).status_code == 413
 
 
+def _img(fmt, size=(900, 700)):
+    import io
+
+    from PIL import Image
+    b = io.BytesIO()
+    Image.new("1" if fmt == "PNG" and size[0] > 5000 else "RGB", size).save(b, fmt)
+    return b.getvalue()
+
+
+@pytest.mark.parametrize("fmt,mime", [("PNG", "image/png"), ("WEBP", "image/webp")])
+def test_png_and_webp_are_reencoded_to_jpeg(c, fmt, mime):
+    r = c.post("/api/reports", data={"category": "shortage", "area": "Hebbal"}, files={"photo": (f"x.{fmt}", _img(fmt), mime)})
+    assert r.status_code == 201
+    ph = c.get(r.json()["photo_url"])
+    assert ph.content[:3] == b"\xff\xd8\xff"   # JPEG magic bytes, whatever was uploaded
+
+
+@pytest.mark.parametrize("content,code", [
+    (b"", 415),                                   # empty file
+    (None, 415),                                  # truncated JPEG
+    ("bomb", 413),                                # 20,000 x 20,000 PNG of ~50 KB (decompression bomb)
+    ("big", 413),                                 # 9,000 x 9,000 = 81 MP: over the 60 MP limit, under Pillow's own
+])
+def test_empty_corrupt_and_bomb_photos_rejected_not_500(c, content, code):
+    if content is None:
+        content = jpeg()[:300]
+    elif content == "bomb":
+        content = _img("PNG", (20000, 20000))
+    elif content == "big":
+        content = _img("PNG", (9000, 9000))
+    r = c.post("/api/reports", data={"category": "shortage", "area": "Hebbal"}, files={"photo": ("../../x.jpg", content, "image/jpeg")})
+    assert r.status_code == code, r.text
+
+
 def test_tanker_average_and_description_trimmed(c):
     c.post("/api/reports", data={"category": "tanker", "area": "Bellandur", "price": 1500, "litres": 6000, "description": "x" * 900})
     hs = c.get("/api/hotspots").json()
@@ -267,3 +301,20 @@ def test_every_endpoint_documented():
     spec = main.app.openapi()
     ops = {(m, p) for p, o in spec["paths"].items() for m in o}
     assert ops == set(DESCRIPTIONS)
+
+
+def test_site_survives_database_outage_at_startup(c, monkeypatch):
+    """If the DB is unreachable at cold start, pages and data still load and the next API call retries setup."""
+    calls = {"n": 0}
+
+    def boom():
+        calls["n"] += 1
+        raise OSError("database unreachable")
+    monkeypatch.setattr(main, "_ready", False)
+    monkeypatch.setattr(main, "startup", boom)
+    assert main.ensure_started() is False
+    assert c.get("/").status_code == 200
+    h = c.get("/api/health").json()
+    assert h["ok"] is False and h["schema_version"] is None and calls["n"] >= 2   # retried on the API request
+    monkeypatch.setattr(main, "startup", lambda: {"applied": [], "demo": 0})
+    assert c.get("/api/health").json()["schema_version"] == 3                    # recovered

@@ -16,6 +16,7 @@ from PIL import Image, UnidentifiedImageError
 from . import data_store, rules
 
 MAX_UPLOAD = 8 * 1024 * 1024
+MAX_PIXELS = 60_000_000   # 60 MP; phones upload far less because the browser shrinks photos first
 WRITE_LIMIT = int(os.environ.get("JALSETU_WRITE_LIMIT", "30"))     # writes per IP per 10 minutes
 LOGIN_LIMIT = int(os.environ.get("JALSETU_LOGIN_LIMIT", "10"))     # login attempts per IP per 10 minutes
 _hits: dict[str, deque] = defaultdict(deque)
@@ -54,12 +55,22 @@ def to_jpeg(raw: bytes, size: int = 640) -> bytes:
     if len(raw) > MAX_UPLOAD:
         raise HTTPException(413, "Photo is larger than 8 MB.")
     try:
-        im = Image.open(io.BytesIO(raw)).convert("RGB")
-    except (UnidentifiedImageError, OSError) as e:
+        im = Image.open(io.BytesIO(raw))   # reads only the header
+    except (UnidentifiedImageError, OSError, Image.DecompressionBombError) as e:
+        if isinstance(e, Image.DecompressionBombError):
+            raise HTTPException(413, "Photo dimensions are too large.") from e
         raise HTTPException(415, "That file isn't a photo JalSetu can read. Use a JPG or PNG.") from e
-    im.thumbnail((size, size))
+    # a small file can claim huge dimensions; refuse before decoding so it can't exhaust memory
+    if im.width * im.height > MAX_PIXELS:
+        raise HTTPException(413, "Photo dimensions are too large (over 60 megapixels).")
+    try:
+        im.draft("RGB", (size, size))      # JPEG: decode at reduced scale
+        rgb = im.convert("RGB")
+    except (OSError, ValueError, Image.DecompressionBombError) as e:
+        raise HTTPException(415, "That file isn't a photo JalSetu can read. Use a JPG or PNG.") from e
+    rgb.thumbnail((size, size))
     buf = io.BytesIO()
-    im.save(buf, "JPEG", quality=75)
+    rgb.save(buf, "JPEG", quality=75)
     return buf.getvalue()
 
 

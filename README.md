@@ -147,7 +147,8 @@ python -m mypy
 ```
 
 Latest run (30 Sep 2026):
-- **pytest:** 120 passed (backend, pipeline, ML, and 9 browser end-to-end tests), on both SQLite and PostgreSQL 16 for the non-browser suites.
+- **pytest:** 127 passed (backend, pipeline, ML, and 9 browser end-to-end tests); the 118 non-browser tests also pass on PostgreSQL 16.
+- **QA script** (`scripts/qa_audit.py`, local server only): 64 of 64 checks passed on SQLite and on PostgreSQL 16.
 - **node:** 9 passed.
 - **ruff and mypy:** clean.
 
