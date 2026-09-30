@@ -171,6 +171,29 @@ def users(user: dict = Depends(admin_only)):
     return {"users": db.rows("SELECT id, email, name, role, organization, created_at, last_login_at FROM users ORDER BY created_at DESC LIMIT 500")}
 
 
+class RoleIn(BaseModel):
+    role: Literal["citizen", "organization", "admin"]
+
+
+@router.patch("/users/{uid}")
+def set_role(uid: int, body: RoleIn, request: Request, user: dict = Depends(admin_only)):
+    """Change an account's role, e.g. make a registered user an admin. Audit-logged."""
+    u = db.one("SELECT id, email, role FROM users WHERE id=?", (uid,))
+    if not u:
+        raise HTTPException(404, "User not found.")
+    if u["id"] == user["id"] and body.role != "admin":
+        raise HTTPException(409, "You can't remove your own admin role. Ask another admin.")
+    if u["email"] == auth.admin_env()[0] and body.role != "admin":
+        raise HTTPException(409, "This is the main admin set by ADMIN_EMAIL in Vercel; change that setting instead.")
+    if u["role"] == body.role:
+        return {"id": uid, "role": body.role, "changed": False}
+    db.run("UPDATE users SET role=? WHERE id=?", (body.role, uid))
+    if body.role != "admin":   # log them out everywhere so the old admin session can't be reused
+        db.run("DELETE FROM sessions WHERE user_id=?", (uid,))
+    auth.audit(user, "user_role", f"user:{uid}", f"{u['email']}: {u['role']} -> {body.role}", request)
+    return {"id": uid, "role": body.role, "changed": True}
+
+
 @router.get("/predictions")
 def predictions(limit: int = Query(50, ge=1, le=500), user: dict = Depends(admin_only)):
     return {"predictions": db.rows("SELECT * FROM model_predictions ORDER BY created_at DESC LIMIT ?", (limit,))}

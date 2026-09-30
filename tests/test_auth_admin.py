@@ -200,3 +200,20 @@ def test_admin_check_explains_failed_login(c):
     assert wrong_pw["problem"] == "password_mismatch" and "correct-horse" not in wrong_pw["message"]
     ok = c.post("/api/auth/admin-check", json={"email": "admin@jalsetu.test", "password": "correct-horse-battery"}).json()
     assert ok["problem"] is None
+
+
+def test_admin_can_make_another_user_admin_and_back(c, admin, citizen):
+    me = c.get("/api/auth/me", headers=citizen).json()["user"]
+    assert c.patch(f"/api/admin/users/{me['id']}", json={"role": "admin"}, headers=citizen).status_code == 403
+    r = c.patch(f"/api/admin/users/{me['id']}", json={"role": "admin"}, headers=admin).json()
+    assert r == {"id": me["id"], "role": "admin", "changed": True}
+    assert c.get("/api/admin/overview", headers=citizen).status_code == 200          # new admin can use the dashboard
+    main_admin = c.get("/api/auth/me", headers=admin).json()["user"]
+    assert c.patch(f"/api/admin/users/{main_admin['id']}", json={"role": "citizen"}, headers=citizen).status_code == 409
+    assert c.patch(f"/api/admin/users/{me['id']}", json={"role": "citizen"}, headers=citizen).status_code == 409   # not yourself
+    assert c.patch(f"/api/admin/users/{me['id']}", json={"role": "citizen"}, headers=admin).json()["changed"] is True
+    assert c.get("/api/admin/overview", headers=citizen).status_code == 401           # demoted user logged out
+    assert c.patch("/api/admin/users/999999", json={"role": "admin"}, headers=admin).status_code == 404
+    assert c.patch(f"/api/admin/users/{me['id']}", json={"role": "superuser"}, headers=admin).status_code == 422
+    logs = c.get("/api/admin/audit-logs", headers=admin).json()["logs"]
+    assert any(l["action"] == "user_role" and "citizen -> admin" in l["detail"] for l in logs)

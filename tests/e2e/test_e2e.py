@@ -168,6 +168,12 @@ def test_full_user_journey(base, browser, tmp_path):
     admin.click(f"button[data-del='{extra}']")
     _wait(admin, f"!document.querySelector(\"button[data-del='{extra}']\")")
     _wait(admin, "document.querySelector('#audit').innerText.includes('report_delete')")
+    # admin makes another registered user an admin from the Users table
+    admin.wait_for_selector("select[data-role]")
+    sel = admin.locator("select[data-role]").filter(has=admin.locator("option[selected]", has_text="organization")).first
+    admin.once("dialog", lambda d: d.accept())
+    sel.select_option("admin")
+    _wait(admin, "document.querySelector('#audit').innerText.includes('user_role')")
     page.reload(); _tab(page, "report")
     _wait(page, "document.querySelector('#reports').innerText.includes('Verified')")
     assert not errors and not a_err, errors + a_err

@@ -22,6 +22,7 @@ Version 2.0.0. Generated from the OpenAPI schema by `python scripts/gen_api_docs
 | `POST` | `/api/admin/lake-observations` | admin | Add a lake quality observation with its source | – | JSON `LakeObsIn` |
 | `GET` | `/api/admin/audit-logs` | admin | Audit log of admin and account actions | limit | – |
 | `GET` | `/api/admin/users` | admin | Accounts (no password data) | – | – |
+| `PATCH` | `/api/admin/users/{uid}` | admin | Change an account's role, e.g. make someone an admin (audit-logged) | uid | JSON `RoleIn` |
 | `GET` | `/api/admin/predictions` | admin | Logged model predictions | limit | – |
 
 ## admin-setup-status
@@ -194,6 +195,7 @@ Version 2.0.0. Generated from the OpenAPI schema by `python scripts/gen_api_docs
 - **RegisterIn**: `email`*, `password`*, `name`*, `role`, `organization`  (* required)
 - **RequestIn**: `area`, `lat`, `lng`, `requester`*, `qty_kl_per_day`*, `needed_from`*, `needed_to`*, `purpose`*, `min_treatment`  (* required)
 - **ReservoirIn**: `reservoir_id`*, `reservoir`*, `date`*, `storage_tmc`, `capacity_tmc`, `pct_full`, `inflow_cusecs`, `outflow_cusecs`, `source`*, `url`*, `status`  (* required)
+- **RoleIn**: `role`*  (* required)
 - **RwhIn**: `length_ft`*, `width_ft`*, `built`, `roof_sqm`, `paved_sqm`, `monthly_bill_rs`, `runoff_coefficient`, `collection_efficiency`, `rainfall_series`, `annual_rain_mm`  (* required)
 - **SeasonIn**: `jun_dep_pct`*, `jul_dep_pct`*, `premonsoon_dep_pct`, `prev_ond_dep_pct`  (* required)
 - **StatusIn**: `status`*, `note`  (* required)

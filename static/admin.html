@@ -40,6 +40,9 @@
         <button type="submit" style="grid-column:1/-1">Add reading</button><p class="err" id="resErr" role="alert"></p>
       </form></div>
     <div class="grid2"><div class="panel"><h2>API health</h2><dl class="kv" id="health"></dl></div><div class="panel"><h2>Models</h2><dl class="kv" id="models"></dl><div id="preds"></div></div></div>
+    <div class="panel"><h2>Users and roles</h2>
+      <p class="muted" style="font-size:13px">To make someone an admin: they create an account on the main site first (Log in → Create account), then choose "admin" next to their email here. The main admin comes from ADMIN_EMAIL in Vercel and can't be demoted here.</p>
+      <div class="tw"><table class="t"><thead><tr><th>Email</th><th>Name</th><th>Role</th><th>Last login</th></tr></thead><tbody id="userRows"></tbody></table></div></div>
     <div class="panel"><h2>Recent activity (audit log)</h2><div class="tw"><table class="t"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Detail</th></tr></thead><tbody id="audit"></tbody></table></div></div>
   </div>
 </div>

@@ -55,5 +55,6 @@ DESCRIPTIONS = {
     ("post", "/api/admin/lake-observations"): "Add a lake quality observation with its source",
     ("get", "/api/admin/audit-logs"): "Audit log of admin and account actions",
     ("get", "/api/admin/users"): "Accounts (no password data)",
+    ("patch", "/api/admin/users/{uid}"): "Change an account's role, e.g. make someone an admin (audit-logged)",
     ("get", "/api/admin/predictions"): "Logged model predictions",
 }

@@ -54,7 +54,7 @@
 
 ## 4:40 Close (20 s)
 
-> "Everything I showed is tested: 117 automated Python tests, including a browser test that runs this exact journey, plus 9 frontend tests. The risk methodology, model report, data sources and security review are all in the repository. Limitations are documented too: regional rainfall data ends in 2015, some figures come from news reports of official data, and there is no ward-level risk."
+> "Everything I showed is tested: 118 automated Python tests, including a browser test that runs this exact journey, plus 9 frontend tests. The risk methodology, model report, data sources and security review are all in the repository. Limitations are documented too: regional rainfall data ends in 2015, some figures come from news reports of official data, and there is no ward-level risk."
 
 ## If something fails
 

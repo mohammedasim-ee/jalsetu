@@ -49,8 +49,20 @@ async function load() {
   $("models").innerHTML = `<dt>Version</dt><dd>${esc(o.ml.version)}</dd><dt>Trained</dt><dd>${esc(o.ml.trained_at)}</dd><dt>Classifier</dt><dd>${esc(o.ml.classifier)}</dd><dt>Forecaster</dt><dd>${esc(o.ml.forecaster)}</dd><dt>Predictions logged</dt><dd>${o.ml.predictions_logged}</dd>`;
   $("preds").innerHTML = o.ml.recent_predictions.map(p => `<div class="src">${esc(p.model)} v${esc(p.version)} → ${esc(p.output)} · ${esc(ago(p.created_at))}</div>`).join("");
   $("audit").innerHTML = o.activity.map(a => `<tr><td>${esc(ago(a.created_at))}</td><td>${esc(a.email || "–")}</td><td>${esc(a.action)}</td><td>${esc(a.target || "")}</td><td>${esc(a.detail || "")}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">No activity yet.</td></tr>`;
-  loadReports();
+  loadReports(); loadUsers();
 }
+async function loadUsers() {
+  const j = await api("/admin/users");
+  $("userRows").innerHTML = j.users.map(u => `<tr><td>${esc(u.email)}</td><td>${esc(u.name)}${u.organization ? `<br><small class="muted">${esc(u.organization)}</small>` : ""}</td>
+    <td><select data-role="${u.id}" aria-label="Role for ${esc(u.email)}" style="width:auto;padding:4px 6px">${["citizen", "organization", "admin"].map(r => `<option ${r === u.role ? "selected" : ""}>${r}</option>`).join("")}</select></td>
+    <td>${u.last_login_at ? esc(ago(u.last_login_at)) : "never"}</td></tr>`).join("") || `<tr><td colspan="4" class="empty">No accounts yet.</td></tr>`;
+}
+document.addEventListener("change", async e => {
+  const s = e.target.closest("select[data-role]"); if (!s) return;
+  if (!confirm(`Change this account's role to "${s.value}"?`)) { loadUsers(); return; }
+  try { const r = await api("/admin/users/" + s.dataset.role, { method: "PATCH", body: { role: s.value } }); toast(r.changed ? `Role changed to ${r.role}.` : "No change."); load(); }
+  catch (err) { toast(err.msg); loadUsers(); }
+});
 async function loadReports() {
   const st = $("stFilter").value;
   const j = await api("/admin/reports" + (st ? "?status=" + st : ""));
