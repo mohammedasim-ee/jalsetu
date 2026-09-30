@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JalSetu Admin</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/static/css/app.css">
+<style>body{padding-bottom:40px}.wrap{max-width:1000px}.cards{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><div class="topbar"><div class="brand"><h1>JalSetu</h1><span class="kn" style="font-family:var(--display)">Admin</span></div>
+    <div class="acct" id="acct"><a href="/" style="color:var(--accent);font-size:13px">← Website</a></div></div>
+    <p class="sub">Review reports, check data freshness, API health, models and activity.</p></header>
+
+  <section class="panel" id="loginPanel" hidden><h2>Admin log in</h2>
+    <form id="loginForm"><label class="f">Email<input id="email" type="email" autocomplete="username" required></label>
+      <label class="f">Password<input id="pass" type="password" autocomplete="current-password" required></label>
+      <button type="submit">Log in</button><p class="err" id="loginErr" role="alert"></p>
+      <p class="muted" style="font-size:12.5px">The admin account is created from the ADMIN_EMAIL and ADMIN_PASSWORD server settings; it can't be registered from the website.</p></form>
+  </section>
+
+  <div id="dash" hidden style="display:flex;flex-direction:column;gap:16px">
+    <div class="cards" id="summary"></div>
+    <div class="panel"><div class="row between"><h2>Reports to review</h2>
+      <select id="stFilter" style="width:auto" aria-label="Filter by status"><option value="">All</option><option>SUBMITTED</option><option>UNDER_REVIEW</option><option>VERIFIED</option><option>RESOLVED</option><option>REJECTED</option></select></div>
+      <div class="tw"><table class="t"><thead><tr><th>#</th><th>Report</th><th>Status</th><th>Change status</th></tr></thead><tbody id="repRows"></tbody></table></div></div>
+    <div class="panel"><h2>Active warnings</h2><div id="warns"></div></div>
+    <div class="panel"><h2>Data freshness</h2><div class="tw"><table class="t"><thead><tr><th>Dataset</th><th>Data as of</th><th>Age</th><th>Status</th></tr></thead><tbody id="fresh"></tbody></table></div><p class="src" id="pipe"></p></div>
+    <div class="panel"><h2>Add a reservoir reading</h2>
+      <form id="resForm" class="grid2" style="display:grid">
+        <label class="f">Reservoir<select id="resId"><option value="cauvery_total|Cauvery basin reservoirs (combined, as reported)">Cauvery total</option><option value="krs|KRS">KRS</option><option value="kabini|Kabini">Kabini</option><option value="harangi|Harangi">Harangi</option></select></label>
+        <label class="f">Date<input id="resDate" type="date" required></label>
+        <label class="f">% full (or storage + capacity)<input id="resPct" type="number" min="0" max="100" step="0.01"></label>
+        <label class="f">Storage (TMC)<input id="resSto" type="number" min="0" step="0.01"></label>
+        <label class="f">Capacity (TMC)<input id="resCap" type="number" min="0" step="0.01"></label>
+        <label class="f">Source name<input id="resSrc" required minlength="3"></label>
+        <label class="f" style="grid-column:1/-1">Source URL (https)<input id="resUrl" type="url" required pattern="https://.*"></label>
+        <button type="submit" style="grid-column:1/-1">Add reading</button><p class="err" id="resErr" role="alert"></p>
+      </form></div>
+    <div class="grid2"><div class="panel"><h2>API health</h2><dl class="kv" id="health"></dl></div><div class="panel"><h2>Models</h2><dl class="kv" id="models"></dl><div id="preds"></div></div></div>
+    <div class="panel"><h2>Recent activity (audit log)</h2><div class="tw"><table class="t"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Detail</th></tr></thead><tbody id="audit"></tbody></table></div></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="/static/js/lib.js"></script>
+<script src="/static/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+[
+ {
+  "id": "bellandur",
+  "name": "Bellandur Lake",
+  "lat": 12.93417,
+  "lng": 77.66278,
+  "area_ha": "329-372",
+  "ward": {
+   "ward_no": 115,
+   "name": "Bellanduru"
+  },
+  "inside_bbmp": true,
+  "source": "Wikipedia article (coordinates and area)",
+  "url": "https://en.wikipedia.org/wiki/Bellandur_Lake",
+  "retrieved": "2026-09-30",
+  "quality": null,
+  "quality_note": "No per-lake water-quality series is available to JalSetu. KSPCB publishes monthly lake reports; an admin can add observations through /api/admin/lake-observations."
+ },
+ {
+  "id": "ulsoor",
+  "name": "Ulsoor Lake",
+  "lat": 12.981472,
+  "lng": 77.6192139,
+  "area_ha": "50",
+  "ward": {
+   "ward_no": 131,
+   "name": "Ulsoor"
+  },
+  "inside_bbmp": true,
+  "source": "Wikipedia article (coordinates and area)",
+  "url": "https://en.wikipedia.org/wiki/Ulsoor_Lake",
+  "retrieved": "2026-09-30",
+  "quality": null,
+  "quality_note": "No per-lake water-quality series is available to JalSetu. KSPCB publishes monthly lake reports; an admin can add observations through /api/admin/lake-observations."
+ },
+ {
+  "id": "agara",
+  "name": "Agara Lake",
+  "lat": 12.921,
+  "lng": 77.641,
+  "area_ha": "32",
+  "ward": {
+   "ward_no": 230,
+   "name": "Agara"
+  },
+  "inside_bbmp": true,
+  "source": "Wikipedia article (coordinates and area)",
+  "url": "https://en.wikipedia.org/wiki/Agara_Lake",
+  "retrieved": "2026-09-30",
+  "quality": null,
+  "quality_note": "No per-lake water-quality series is available to JalSetu. KSPCB publishes monthly lake reports; an admin can add observations through /api/admin/lake-observations."
+ },
+ {
+  "id": "puttenahalli",
+  "name": "Puttenahalli Lake (JP Nagar)",
+  "lat": 12.8906583,
+  "lng": 77.5866722,
+  "area_ha": "5.3",
+  "ward": {
+   "ward_no": 240,
+   "name": "Vinayakanagar"
+  },
+  "inside_bbmp": true,
+  "source": "Wikipedia article (coordinates and area)",
+  "url": "https://en.wikipedia.org/wiki/Puttenahalli_Lake_(JP_Nagar)",
+  "retrieved": "2026-09-30",
+  "quality": null,
+  "quality_note": "No per-lake water-quality series is available to JalSetu. KSPCB publishes monthly lake reports; an admin can add observations through /api/admin/lake-observations."
+ },
+ {
+  "id": "rachenahalli",
+  "name": "Rachenahalli Lake",
+  "lat": 13.06333,
+  "lng": 77.61194,
+  "area_ha": "42",
+  "ward": {
+   "ward_no": 8,
+   "name": "Jakkuru"
+  },
+  "inside_bbmp": true,
+  "source": "Wikipedia article (coordinates and area)",
+  "url": "https://en.wikipedia.org/wiki/Rachenahalli_Lake",
+  "retrieved": "2026-09-30",
+  "quality": null,
+  "quality_note": "No per-lake water-quality series is available to JalSetu. KSPCB publishes monthly lake reports; an admin can add observations through /api/admin/lake-observations."
+ },
+ {
+  "id": "yele-mallappa-shetty",
+  "name": "Yele Mallappa Shetty Lake",
+  "lat": 13.0235,
+  "lng": 77.729222,
+  "area_ha": "205.6",
+  "ward": null,
+  "inside_bbmp": false,
+  "source": "Wikipedia article (coordinates and area)",
+  "url": "https://en.wikipedia.org/wiki/Yele_Mallappa_Shetty_Lake",
+  "retrieved": "2026-09-30",
+  "quality": null,
+  "quality_note": "No per-lake water-quality series is available to JalSetu. KSPCB publishes monthly lake reports; an admin can add observations through /api/admin/lake-observations."
+ },
+ {
+  "id": "jaraganahalli",
+  "name": "Jaraganahalli Lake",
+  "lat": 12.901583,
+  "lng": 77.572889,
+  "area_ha": "2.4",
+  "ward": {
+   "ward_no": 220,
+   "name": "Yelachenahalli"
+  },
+  "inside_bbmp": true,
+  "source": "Wikipedia article (coordinates and area)",
+  "url": "https://en.wikipedia.org/wiki/Jaraganahalli_Lake",
+  "retrieved": "2026-09-30",
+  "quality": null,
+  "quality_note": "No per-lake water-quality series is available to JalSetu. KSPCB publishes monthly lake reports; an admin can add observations through /api/admin/lake-observations."
+ }
+]

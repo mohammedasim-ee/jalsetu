@@ -1,0 +1,279 @@
+[
+ {
+  "name": "Banashankari",
+  "lat": 12.9255,
+  "lng": 77.5468,
+  "ward": {
+   "ward_no": 208,
+   "name": "Deen Dayalu Ward"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Basavanagudi",
+  "lat": 12.9422,
+  "lng": 77.5738,
+  "ward": {
+   "ward_no": 175,
+   "name": "Ashoka Pillar"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Bellandur",
+  "lat": 12.926,
+  "lng": 77.6762,
+  "ward": {
+   "ward_no": 115,
+   "name": "Bellanduru"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Bommanahalli",
+  "lat": 12.903,
+  "lng": 77.624,
+  "ward": {
+   "ward_no": 235,
+   "name": "Bommanahalli"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "BTM Layout",
+  "lat": 12.9166,
+  "lng": 77.6101,
+  "ward": {
+   "ward_no": 192,
+   "name": "BTM Layout"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Electronic City",
+  "lat": 12.8452,
+  "lng": 77.6602,
+  "ward": null,
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Hebbal",
+  "lat": 13.0358,
+  "lng": 77.597,
+  "ward": {
+   "ward_no": 70,
+   "name": "Hebbala"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Hennur",
+  "lat": 13.035,
+  "lng": 77.64,
+  "ward": {
+   "ward_no": 94,
+   "name": "Hennur"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "HSR Layout",
+  "lat": 12.9116,
+  "lng": 77.6389,
+  "ward": {
+   "ward_no": 230,
+   "name": "Agara"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Indiranagar",
+  "lat": 12.9784,
+  "lng": 77.6408,
+  "ward": {
+   "ward_no": 120,
+   "name": "Hoysala Nagar"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Jayanagar",
+  "lat": 12.925,
+  "lng": 77.5938,
+  "ward": {
+   "ward_no": 196,
+   "name": "Byrasandra"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "JP Nagar",
+  "lat": 12.9063,
+  "lng": 77.5857,
+  "ward": {
+   "ward_no": 199,
+   "name": "Sarakki"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Kengeri",
+  "lat": 12.908,
+  "lng": 77.482,
+  "ward": {
+   "ward_no": 34,
+   "name": "Bande Mutt"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Koramangala",
+  "lat": 12.9352,
+  "lng": 77.6245,
+  "ward": {
+   "ward_no": 186,
+   "name": "Koramangala"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "KR Puram",
+  "lat": 13.007,
+  "lng": 77.696,
+  "ward": {
+   "ward_no": 89,
+   "name": "Devasandra"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Mahadevapura",
+  "lat": 12.9916,
+  "lng": 77.6926,
+  "ward": {
+   "ward_no": 107,
+   "name": "Garudachar Playa"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Malleshwaram",
+  "lat": 13.0031,
+  "lng": 77.5643,
+  "ward": {
+   "ward_no": 64,
+   "name": "Kadu Malleshwara"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Marathahalli",
+  "lat": 12.9569,
+  "lng": 77.7011,
+  "ward": {
+   "ward_no": 114,
+   "name": "Marathahalli"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Peenya",
+  "lat": 13.028,
+  "lng": 77.519,
+  "ward": {
+   "ward_no": 24,
+   "name": "Rajagopal Nagar"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Rajajinagar",
+  "lat": 12.991,
+  "lng": 77.555,
+  "ward": {
+   "ward_no": 141,
+   "name": "Rajaji Nagar"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "RR Nagar",
+  "lat": 12.9274,
+  "lng": 77.5155,
+  "ward": {
+   "ward_no": 48,
+   "name": "Jnana Bharathi"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Sarjapur Road",
+  "lat": 12.91,
+  "lng": 77.685,
+  "ward": {
+   "ward_no": 116,
+   "name": "Doddakanahalli"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Shivajinagar",
+  "lat": 12.9857,
+  "lng": 77.6057,
+  "ward": {
+   "ward_no": 127,
+   "name": "Jayamahal"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Varthur",
+  "lat": 12.938,
+  "lng": 77.741,
+  "ward": {
+   "ward_no": 112,
+   "name": "Varthuru"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Vijayanagar",
+  "lat": 12.9719,
+  "lng": 77.536,
+  "ward": {
+   "ward_no": 150,
+   "name": "Marenahalli"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Whitefield",
+  "lat": 12.9698,
+  "lng": 77.75,
+  "ward": {
+   "ward_no": 111,
+   "name": "Hagadur"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Yelahanka",
+  "lat": 13.1007,
+  "lng": 77.5963,
+  "ward": {
+   "ward_no": 1,
+   "name": "Kempegowda Ward"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ },
+ {
+  "name": "Yeshwanthpur",
+  "lat": 13.028,
+  "lng": 77.54,
+  "ward": {
+   "ward_no": 36,
+   "name": "Chatrapati Shivaji"
+  },
+  "note": "Approximate locality centre (hand-entered), not a surveyed point."
+ }
+]

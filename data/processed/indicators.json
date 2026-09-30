@@ -1,0 +1,167 @@
+{
+ "rainfall_current_season": {
+  "status": "historical",
+  "period": "1 Jun – 28 Sep 2026",
+  "as_of": "2026-09-28",
+  "retrieved": "2026-09-29",
+  "source": "IMD Bengaluru, district-wise cumulative rainfall summary",
+  "url": "https://mausam.imd.gov.in/bengaluru/mcdata/cum_stats.pdf",
+  "districts": [
+   {
+    "name": "Bengaluru Urban",
+    "actual_mm": 227.7,
+    "normal_mm": 441.6,
+    "anomaly_mm": -213.9,
+    "departure_pct": -48.4
+   },
+   {
+    "name": "Bengaluru Rural",
+    "actual_mm": 338.4,
+    "normal_mm": 422.1,
+    "anomaly_mm": -83.7,
+    "departure_pct": -19.8
+   }
+  ]
+ },
+ "reservoir_readings": [
+  {
+   "reservoir": "Cauvery basin reservoirs (combined, as reported)",
+   "id": "cauvery_total",
+   "date": "2026-09-05",
+   "storage_tmc": 54.99,
+   "capacity_tmc": 86.3,
+   "pct_full": 63.7,
+   "inflow_cusecs": null,
+   "outflow_cusecs": null,
+   "status": "historical",
+   "source": "IBC World News, Cauvery reservoirs report",
+   "url": "https://ibcworldnews.com/2026/09/05/cauvery-reservoirs-under-pressure/",
+   "retrieved": "2026-09-29",
+   "pct_derived": true
+  },
+  {
+   "reservoir": "KRS",
+   "id": "krs",
+   "date": "2026-09-05",
+   "storage_tmc": null,
+   "capacity_tmc": null,
+   "pct_full": 59.35,
+   "inflow_cusecs": null,
+   "outflow_cusecs": null,
+   "status": "historical",
+   "source": "IBC World News, Cauvery reservoirs report",
+   "url": "https://ibcworldnews.com/2026/09/05/cauvery-reservoirs-under-pressure/",
+   "retrieved": "2026-09-29",
+   "pct_derived": false
+  },
+  {
+   "reservoir": "Kabini",
+   "id": "kabini",
+   "date": "2026-09-05",
+   "storage_tmc": null,
+   "capacity_tmc": null,
+   "pct_full": 57.42,
+   "inflow_cusecs": null,
+   "outflow_cusecs": null,
+   "status": "historical",
+   "source": "IBC World News, Cauvery reservoirs report",
+   "url": "https://ibcworldnews.com/2026/09/05/cauvery-reservoirs-under-pressure/",
+   "retrieved": "2026-09-29",
+   "pct_derived": false
+  },
+  {
+   "reservoir": "Harangi",
+   "id": "harangi",
+   "date": "2026-09-05",
+   "storage_tmc": null,
+   "capacity_tmc": null,
+   "pct_full": 87.52,
+   "inflow_cusecs": null,
+   "outflow_cusecs": null,
+   "status": "historical",
+   "source": "IBC World News, Cauvery reservoirs report",
+   "url": "https://ibcworldnews.com/2026/09/05/cauvery-reservoirs-under-pressure/",
+   "retrieved": "2026-09-29",
+   "pct_derived": false
+  }
+ ],
+ "groundwater": {
+  "official_assessment": {
+   "status": "historical",
+   "label": "Official district assessment",
+   "district": "Bengaluru Urban",
+   "stage_of_extraction_pct": 186.7,
+   "assessment": "National Compilation on Dynamic Ground Water Resources of India, 2024 (CGWB and state groundwater departments)",
+   "as_of": "2024",
+   "source": "Deccan Herald report on the 2024 national compilation (9 Oct 2025)",
+   "url": "https://www.deccanherald.com/amp/story/india%2Fkarnataka%2Fbengaluru%2Fbengaluru-urban-among-5-districts-with-100-plus-groundwater-extraction-3757568",
+   "retrieved": "2026-09-30",
+   "note": "CGWB categories: up to 70% safe, 70–90% semi-critical, 90–100% critical, above 100% over-exploited."
+  },
+  "city_water_balance": {
+   "status": "modelled",
+   "label": "Modelled city water balance (estimate)",
+   "pumped_mld": 1372,
+   "recharge_mld": 148,
+   "as_of": "2024",
+   "source": "The Wire, reporting WELL Labs' urban water balance for Bengaluru",
+   "url": "https://m.thewire.in/article/environment/whats-causing-bengalurus-water-crisis",
+   "retrieved": "2026-09-29",
+   "extraction_ratio": 9.27
+  },
+  "borewells_dried": {
+   "status": "historical",
+   "dried": 6900,
+   "total": 13900,
+   "as_of": "2024",
+   "source": "SANDRP, quoting D.K. Shivakumar (then Deputy CM)",
+   "url": "https://sandrp.in/2025/03/05/2024-bengaluru-groundwater-top-ten-reports-problems-causes-solutions/",
+   "retrieved": "2026-09-29",
+   "share": 0.496
+  }
+ },
+ "demand_supply": {
+  "status": "historical",
+  "demand_mld": 2600,
+  "demand_as_of": "2024",
+  "demand_source": "Neerain, citing the 2024 BWSSB estimate",
+  "demand_url": "https://neerain.com/bengaluru-water-crisis/",
+  "supply_mld": 1935,
+  "supply_as_of": "2026-08",
+  "supply_source": "BBMP council reply reported by NammaWard",
+  "supply_url": "https://nammaward.in/wardpulse/cauvery-5th-stage-is-supplying-485-mld-of-its-775-mld-capacity",
+  "retrieved": "2026-09-29",
+  "note": "Demand and supply figures come from different years (2024 and Aug 2026).",
+  "gap_mld": 665,
+  "gap_share": 0.256
+ },
+ "lake_quality_summary": {
+  "status": "historical",
+  "lakes_monitored": 149,
+  "lakes_class_a_to_c": 0,
+  "share_class_e_avg": 0.4,
+  "period": "Apr – Nov 2025",
+  "as_of": "2025-11",
+  "source": "News Karnataka report on KSPCB lake monitoring (Feb 2026)",
+  "url": "https://newskarnataka.com/bengaluru/nearly-40-bengaluru-lakes-in-worst-water-quality-class/22022026",
+  "retrieved": "2026-09-29",
+  "share_not_a_to_c": 1.0
+ },
+ "sewage": {
+  "status": "historical",
+  "generated_mld": 2300,
+  "untreated_mld": 580,
+  "as_of": "2025",
+  "source": "SANDRP, 2025",
+  "url": "https://sandrp.in/2025/03/05/2024-bengaluru-groundwater-top-ten-reports-problems-causes-solutions/",
+  "retrieved": "2026-09-29"
+ },
+ "treated_water_price": {
+  "status": "historical",
+  "rs_per_kl": 10,
+  "as_of": "2024-04",
+  "source": "The Hindu, 3 Apr 2024",
+  "url": "https://www.pressreader.com/india/the-hindu-bangalore-9WW1/20240403/281651080121605",
+  "retrieved": "2026-09-29"
+ }
+}

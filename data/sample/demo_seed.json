@@ -1,0 +1,20 @@
+{
+  "_about": "DEMONSTRATION DATA. Invented example rows used only when the server runs with JALSETU_DEMO=1. Every row is stored with is_demo=1, shown with a DEMO label, and never counted in the risk score or warnings.",
+  "reports": [
+    {"category": "groundwater", "area": "Whitefield", "status": "VERIFIED", "hours_ago": 30, "description": "Example: apartment borewell stopped yielding."},
+    {"category": "groundwater", "area": "Whitefield", "status": "SUBMITTED", "hours_ago": 8, "description": "Example: second borewell at low yield."},
+    {"category": "drainage", "area": "Bellandur", "status": "UNDER_REVIEW", "hours_ago": 20, "description": "Example: foam at lake inlet."},
+    {"category": "leakage", "area": "Koramangala", "status": "RESOLVED", "hours_ago": 72, "description": "Example: pipeline leak on main road."},
+    {"category": "contamination", "area": "HSR Layout", "status": "SUBMITTED", "hours_ago": 5, "description": "Example: yellow tap water."}
+  ],
+  "offers": [
+    {"organization": "Example Apartments STP", "area": "Marathahalli", "qty": 80, "treatment": "tertiary", "from": "2026-10-01", "to": "2027-03-31",
+     "categories": ["construction", "landscaping", "flushing"]},
+    {"organization": "Example Tech Park STP", "area": "Hebbal", "qty": 40, "treatment": "secondary", "from": "2026-10-01", "to": "2026-12-31",
+     "categories": ["construction"]}
+  ],
+  "requests": [
+    {"requester": "Example construction site", "area": "Whitefield", "qty": 60, "from": "2026-10-15", "to": "2026-12-15", "purpose": "construction", "min_treatment": "secondary"},
+    {"requester": "Example school garden", "area": "Yelahanka", "qty": 10, "from": "2026-11-01", "to": "2027-01-31", "purpose": "landscaping", "min_treatment": "tertiary"}
+  ]
+}

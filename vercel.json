@@ -3,7 +3,7 @@
     {
       "src": "api/index.py",
       "use": "@vercel/python",
-      "config": { "includeFiles": ["app/**", "static/**"] }
+      "config": { "includeFiles": ["app/**", "static/**", "config/**", "data/processed/**", "data/sample/**", "ml/artifacts/*.json"] }
     }
   ],
   "routes": [

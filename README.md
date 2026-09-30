@@ -1,98 +1,185 @@
-# JalSetu: water security for Bengaluru
+# JalSetu (ಜಲಸೇತು): water security for Bengaluru
 
-A full-stack web app: a **Python (FastAPI) backend with a database** (PostgreSQL when deployed, SQLite on a laptop) plus a mobile-first website.
+Live: https://jalsetu-smoky.vercel.app · Admin: `/admin` · API: `/api` (offline list) and `/docs` (interactive)
 
-| Module | What it does | Where the data comes from |
+## 1. Overview
+
+JalSetu is a working prototype of a data-driven urban water-security and early-warning platform for Bengaluru. It answers four questions: what is happening to the city's water, what could happen next, why the risk is changing, and what practical action can be taken. Every figure shows its source, date and status. **Nothing is presented as a live government feed**: official figures are entered from published bulletins, and the pipeline validates their provenance.
+
+## 2. Problem
+
+Bengaluru is short of water on several fronts at once, and the facts that show it are spread across different sources:
+
+- **Groundwater.** The official CGWB 2024 assessment puts Bengaluru Urban's groundwater extraction at **186.7%** of recharge, which makes it over-exploited. In 2024, 6,900 of 13,900 city borewells dried up.
+- **Rain.** This monsoon, Bengaluru Urban received **48% less rain than normal** (IMD, 1 Jun – 28 Sep 2026).
+- **Supply.** Piped supply (~1,935 MLD) is below demand (~2,600 MLD).
+- **Lakes.** None of 149 monitored lakes met KSPCB class A–C.
+
+These facts sit in IMD, CGWB, KSPCB and BWSSB documents and in news reports. Citizens can't turn them into a decision, and community knowledge such as dry borewells and tanker prices isn't recorded anywhere.
+
+## 3. Solution
+
+One system: **real data → validation → processing → analytics → explainable risk engine → ML (with honest evaluation) → GIS → early warnings → actions.** Communities add verified reports, and a matcher connects surplus treated sewage water with non-drinking uses.
+
+## 4. Architecture
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) (diagram and request flow).
+
+- **Server:** FastAPI (Python), with PostgreSQL on Neon in production and SQLite locally.
+- **Pipeline:** a reproducible data pipeline over real datasets.
+- **ML:** models trained offline and exported to JSON for pure-Python inference.
+- **Frontend:** vanilla JS with a locally bundled Leaflet map.
+- **Hosting:** Vercel.
+
+## 5. Features
+
+| Module | What works | Data status |
 | --- | --- | --- |
-| Early warning | Rain deficit + reservoir storage + groundwater balance → Alert / Watch | IMD, reservoir reports, WELL Labs (`app/data/signals.json`) |
-| Citizen reports | Dry borewells, sewage, tanker prices, with photos, shared by everyone | Users, stored in the database |
-| Treated-water exchange | Apartments with surplus STP water matched to nearby buyers | Users; BWSSB ₹10/kL price |
-| Water quality | Lab values checked against IS 10500:2012 | BIS standard (`app/rules.py`) |
-| Rainwater planner | BWSSB rules: mandatory or not, tank size, yearly harvest | BWSSB rules, rainfall averages |
-| AI (optional) | Checks report photos; reads lab-report photos | Needs `ANTHROPIC_API_KEY` |
+| Overview | Risk score 0–100 with six weighted, explained components; data freshness; early warnings with triggers and actions; 8 indicator cards with source, period, dates, status; risk history | Official/published (historical) + live DB |
+| Rainfall analytics | 115-year monsoon chart, anomalies (mm and %), IMD categories, 10-year moving average, OLS trend with CI, Mann-Kendall test, monthly anomaly chart per year | IMD 1901–2015 (historical, regional) |
+| ML | Deficient-monsoon classifier with per-prediction explanation; forecaster (climatology won); Isolation Forest unusual-month detector; full metrics shown in the app | Trained on IMD data; see MODEL_REPORT.md |
+| Map (GIS) | 243 BBMP wards, lakes, reports, treated-water offers and requests; layer toggles, category and status filters, ward click panel, ward shading by report count | KGIS/DataMeet, Wikipedia. Ward risk is shown as **unavailable**, not faked |
+| Reservoirs | Latest per reservoir, % full, trend when two or more readings exist, admin ingestion with source | News report of official figures |
+| Groundwater | Official extraction stage (real) shown separately from the modelled city water balance (estimate) | CGWB 2024 / WELL Labs |
+| Lakes | List, ward, location source, city quality summary, admin-added observations | KSPCB summary; per-lake series unavailable |
+| Community reports | 7 categories, area or exact map point or GPS, photo, status workflow SUBMITTED → UNDER_REVIEW → VERIFIED → RESOLVED / REJECTED, history | Live DB |
+| Treated-water exchange | Organization offers (quantity, treatment level, BOD/TSS, dates, approved uses); requests (quantity, dates, purpose, minimum treatment); ranked matching; savings; unmet demand | Live DB; ₹10/kL BWSSB price |
+| Water quality | 18 IS 10500:2012 parameters → Safe / High / Unsafe with explanation | BIS standard |
+| Rainwater harvesting | BWSSB mandatory rule, storage, monthly and annual harvest (rainfall × area × runoff × efficiency), penalty avoided, choice of rainfall series | BWSSB rules; rainfall options labelled |
+| Accounts and admin | Citizen / organization / admin; admin dashboard: reports review, warnings, data freshness, API health, ML info, predictions, audit log, reservoir ingestion | – |
+| Demo mode | `JALSETU_DEMO=1` adds invented rows marked DEMO, shows a "DATA MODE: DEMONSTRATION" banner, and never counts them in the score | Demonstration |
 
-The AI only reads photos. Every decision (safe/unsafe, mandatory, counted in hotspots) is made by the official rules in `app/rules.py`.
+## 6. Tech stack
 
-## Project structure
+| Area | Technology | Why |
+| --- | --- | --- |
+| Server | Python 3.12, FastAPI, Pydantic | Validation built in, OpenAPI docs |
+| Database | psycopg 3 (Postgres) / sqlite3 | Same SQL on both; managed Postgres on Vercel |
+| Images | Pillow | Re-encodes uploads safely |
+| ML (offline) | scikit-learn 1.5.2, numpy | Training only; not needed at runtime |
+| Map | Leaflet 1.9.4 | Open-source; bundled locally |
+| Optional AI | Anthropic API | Photo checks; everything works without it |
+| Tests | pytest, Playwright, node:test | Unit, integration, browser |
+| Quality | ruff (incl. security rules), mypy | Lint and type checking |
 
-```
-app/main.py         API routes, database (Postgres or SQLite), validation, rate limiting
-api/index.py        Vercel entry point (vercel.json sends every request here)
-app/rules.py        IS 10500 limits, BWSSB rainwater rules, matching algorithm
-app/ai.py           optional AI photo checks (switched off without an API key)
-app/data/signals.json  official figures for the early warning (edit to update)
-static/index.html   the website (served at /)
-tests/test_api.py   38 automated tests
-```
+## 7. Data sources
 
-## Run it on a laptop (5 minutes)
+[DATA_SOURCES.md](DATA_SOURCES.md) lists every dataset with source, URL, period, retrieval date, status, processing and limitations.
 
-1. Install Python 3.10 or newer from python.org.
-2. In a terminal, inside this folder:
-   ```
-   pip install -r requirements.txt
-   uvicorn app.main:app --host 0.0.0.0 --port 8000
-   ```
-3. Open **http://localhost:8000**. The API list is at **http://localhost:8000/api** (works offline); interactive docs are at **/docs** (needs internet).
-
-**Classroom demo:** connect the laptop and phones to the same Wi-Fi or hotspot. Find the laptop's IP address (Windows: `ipconfig`, Mac: System Settings → Wi-Fi → Details). Classmates open `http://<laptop-ip>:8000` on their phones, and everyone's reports appear for everyone.
-
-## Run the tests
+## 8. Data pipeline
 
 ```
-pip install -r requirements-dev.txt
-pytest -q
+python pipeline/run_pipeline.py
 ```
 
-## Put it online with Vercel (free)
+`data/raw` → validation (missing, negative, duplicate, sum checks; provenance required) → cleaning → normalisation → features (climatology, anomalies, categories, moving averages, trends; ward simplification and point-in-polygon) → `data/processed` plus `manifest.json` (SHA-256 of every input and output). The run is deterministic: the same inputs always give byte-identical outputs, and this is tested.
 
-1. Sign in at **vercel.com** with your GitHub account → **Add New… → Project** → import this repository → **Deploy**. `vercel.json` sets everything up.
-2. **Add a database so reports are kept and shared:** in the Vercel project open **Storage → Create Database → Neon (Postgres)** → connect it to the project. Vercel adds `DATABASE_URL` automatically.
-3. **Deployments → ⋯ → Redeploy** so the app picks up the database. The site is at `https://<project-name>.vercel.app`.
-4. Optional: **Settings → Environment Variables** → add `ANTHROPIC_API_KEY` (AI photo checks) and `ADMIN_TOKEN` (moderator key), then redeploy.
+## 9. ML pipeline
 
-Without step 2 the site still works, but it stores data in temporary server storage, so reports can disappear when Vercel restarts the function.
-Photos are shrunk in the browser before upload because Vercel limits a request to about 4.5 MB.
+```
+pip install -r requirements-ml.txt
+python ml/train.py
+```
 
-## Put it online with Render (alternative)
+Preprocessing and features (`ml/features.py`, training-period baselines only, so there is no leakage) → time-series validation → metrics → export to JSON (`ml/export.py`) → pure-Python inference (`app/ml_runtime.py`, tested equal to scikit-learn) → predictions logged with model version. Results: [MODEL_REPORT.md](MODEL_REPORT.md). Card: [ML_MODEL_CARD.md](ML_MODEL_CARD.md).
 
-1. Create a GitHub account and a new repository; upload this folder's files (the "Add file → Upload files" button works from a phone browser).
-2. Create a free account at render.com → **New → Blueprint** → pick the repository. `render.yaml` sets everything up.
-3. Render gives you a public link like `https://jalsetu.onrender.com`.
+## 10. API
 
-Limits of the free plan to know about:
-- The server sleeps after about 15 minutes without visitors; the first visit after that takes up to a minute to wake it.
-- The free plan's disk is not permanent: **reports and listings are wiped when the server restarts or redeploys.** For data that must last, add a persistent disk (paid) or move to a hosted database.
+51 endpoints. [API.md](API.md) is generated from the OpenAPI schema by `python scripts/gen_api_docs.py`.
 
-## Settings (environment variables)
+## 11. Database schema
 
-| Name | Purpose |
+Versioned migrations are in `app/db.py`; the applied version is recorded in `schema_migrations` (currently 2).
+
+| Table | Purpose |
 | --- | --- |
-| `ADMIN_TOKEN` | Moderator key. Send it as the `x-admin-token` header to delete any report or listing. |
-| `ANTHROPIC_API_KEY` | Optional. Switches on AI photo checks and lab-report reading (paid per use). |
-| `JALSETU_AI_MODEL` | Optional. Defaults to `claude-haiku-4-5-20251001`. |
-| `DATABASE_URL` | PostgreSQL connection string (set automatically by Vercel's Neon integration). If empty, SQLite is used. |
-| `JALSETU_DB` | Path of the SQLite file. Defaults to `jalsetu.db` in this folder. |
+| `users` | Email, name, role, organization, scrypt hash |
+| `sessions` | SHA-256 of token, expiry |
+| `reports` | Category, area, lat/lng, ward, description, tanker price/size, photo, AI check, status, demo flag |
+| `report_events` | Status history with actor and note |
+| `offers` / `requests` | Treated-water exchange |
+| `risk_scores` | Snapshots with component points and input hash |
+| `warnings` | Active/inactive with first and last seen |
+| `model_predictions` | Model, version, inputs, output, time |
+| `reservoir_readings` / `lake_observations` | Admin-ingested data with source URL |
+| `audit_logs` | Actor, action, target, detail, IP, time |
+| `listings` | v1 table, kept for compatibility |
 
-## API summary
+## 12. Installation
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| GET | `/api/health` | Server status, AI on/off, counts |
-| GET | `/api/signals` | Early-warning figures and computed alert levels |
-| GET / POST | `/api/reports` | List / create a report (multipart form; optional photo up to 8 MB) |
-| GET | `/api/reports/{id}/photo` | Report photo (resized JPEG) |
-| DELETE | `/api/reports/{id}` | Moderator only |
-| GET | `/api/hotspots` | Areas with most reports in the last 30 days; average tanker price |
-| GET / POST | `/api/listings` | List / add a treated-water listing (returns an `edit_token` once) |
-| DELETE | `/api/listings/{id}` | Owner (`x-edit-token`) or moderator |
-| GET | `/api/match` | Nearest-first matching of supply and demand, with savings |
-| POST | `/api/quality/check` | IS 10500 check of lab values |
-| POST | `/api/rwh` | BWSSB rainwater harvesting plan |
-| POST | `/api/ai/lab-report` | AI reads a lab-report photo (needs API key) |
+Needs Python 3.10+.
 
-Safety built in: input validation on every route, photo type and size checks, 30 writes per device per 10 minutes, owner-only deletes, HTML shown as text (no script injection), clear error messages instead of server crashes.
+```
+pip install -r requirements.txt            # to run
+pip install -r requirements-dev.txt        # to test, lint, retrain
+```
 
-## Updating the early warning
+## 13. Environment variables
 
-Edit `app/data/signals.json` with the newest IMD rainfall and reservoir figures (keep the `as_of` date and source). The alert levels are recalculated automatically.
+See [.env.example](.env.example).
+
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Postgres; empty = SQLite |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Creates the admin account (password 12+ characters) |
+| `ANTHROPIC_API_KEY` | Optional AI |
+| `JALSETU_DEMO=1` | Demo rows |
+| `CORS_ORIGINS` | Other sites allowed to call the API |
+| `JALSETU_WRITE_LIMIT`, `JALSETU_LOGIN_LIMIT` | Rate limits |
+
+## 14. Running locally
+
+```
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='a-long-password' uvicorn app.main:app --reload
+```
+
+Open http://localhost:8000, and http://localhost:8000/admin for the admin dashboard.
+
+## 15. Testing
+
+See [TESTING.md](TESTING.md).
+
+```
+pytest
+node --test static/js/lib.test.js
+ruff check .
+python -m mypy
+```
+
+Latest run (30 Sep 2026):
+- **pytest:** 108 passed (backend, pipeline, ML, and 6 browser end-to-end tests), on both SQLite and PostgreSQL 16 for the non-browser suites.
+- **node:** 9 passed.
+- **ruff and mypy:** clean.
+
+## 16. Deployment (Vercel + Neon)
+
+1. Push to GitHub. Vercel builds `api/index.py` (`vercel.json`); the bundle contains no ML libraries (~2 MB of app files).
+2. Storage → Neon Postgres → connect. This sets `DATABASE_URL`, and migrations run automatically on first start, including upgrading a v1 database.
+3. Settings → Environment Variables: set `ADMIN_EMAIL` and `ADMIN_PASSWORD`; optionally `ANTHROPIC_API_KEY`.
+4. Redeploy.
+
+Also works on Render (`render.yaml`) or Docker (`Dockerfile`).
+
+## 17. Limitations (honest)
+
+- **No live feeds.** Official figures are entered by hand; there are no live government feeds and no IoT sensors.
+- **Secondary sources.** Some official figures come from news reports of them: reservoir levels, the CGWB stage, the KSPCB summary.
+- **Historical rainfall.** It is regional (South Interior Karnataka) and ends in 2015; the models cannot see 2016–2026.
+- **ML value.** The classifier doesn't beat a simple rule on F1, and its probabilities are uncalibrated; next-month forecasting has no skill over the average. Both are stated in the app.
+- **No ward risk.** No ward-level risk, rainfall or groundwater data is public, so none is shown.
+- **Limited lake data.** Only 7 lakes have locations, and none has a per-lake quality series yet.
+- **Mixed dates.** Inputs to the risk score come from different dates; each component's age is displayed.
+- **Unverified organizations.** Organizations are self-declared. There is no email verification or password reset.
+- **Per-instance rate limits.** On serverless, each instance counts separately.
+- **Map tiles need internet.** OpenStreetMap tiles need a connection; the ward outlines don't.
+- **Arsenic limit to recheck.** Confirm the arsenic permissible limit against the latest BIS amendment.
+
+## 18. Future work
+
+- **Better data:** KSNDMC reservoir bulletins and IMD daily district rainfall, ingested automatically where their terms allow; CGWB observation wells mapped to wards (which would make a ward risk layer possible); KSPCB monthly lake reports per lake.
+- **Better models:** retrain on data after 2015 and probability calibration.
+- **Accounts:** httpOnly cookie sessions, organization verification, and Kannada language support.
+
+---
+
+Also in this repository: [AUDIT.md](AUDIT.md) (before and after), [SECURITY.md](SECURITY.md), [DEMO_SCRIPT.md](DEMO_SCRIPT.md), `docs/` (risk, water-quality and rainwater methodologies).

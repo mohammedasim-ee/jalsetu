@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import math
+from typing import Any
 
 # Approximate locality centres (lat, lng), used only to measure distance between areas.
 AREAS: dict[str, tuple[float, float]] = {
@@ -25,6 +26,21 @@ AREAS: dict[str, tuple[float, float]] = {
     "Vijayanagar": (12.9719, 77.5360), "Whitefield": (12.9698, 77.7500),
     "Yelahanka": (13.1007, 77.5963), "Yeshwanthpur": (13.0280, 77.5400),
 }
+
+# Community report categories (v2) and how v1 report types map onto them
+REPORT_CATEGORIES = {
+    "shortage": "Water shortage",
+    "leakage": "Leakage",
+    "contamination": "Contamination",
+    "tanker": "Tanker issue",
+    "drainage": "Drainage / sewage",
+    "groundwater": "Groundwater / borewell issue",
+    "other": "Other",
+}
+LEGACY_TYPE_TO_CATEGORY = {"dry": "groundwater", "low": "groundwater", "sewage": "drainage", "quality": "contamination", "tanker": "tanker"}
+REPORT_STATUSES = ("SUBMITTED", "UNDER_REVIEW", "VERIFIED", "RESOLVED", "REJECTED")
+STATUS_FLOW = {"SUBMITTED": {"UNDER_REVIEW", "VERIFIED", "REJECTED"}, "UNDER_REVIEW": {"VERIFIED", "REJECTED"},
+               "VERIFIED": {"RESOLVED", "REJECTED"}, "RESOLVED": set(), "REJECTED": set()}
 
 REPORT_TYPES = {
     "dry": "Borewell dry",
@@ -68,7 +84,7 @@ def match(listings: list[dict]) -> list[dict]:
 
 
 # IS 10500:2012 — key: (label, unit, acceptable, permissible or None = no relaxation, kind)
-IS10500 = {
+IS10500: dict[str, tuple[str, str, Any, Any, str]] = {
     "pH": ("pH", "", (6.5, 8.5), None, "range"),
     "tds": ("Total dissolved solids", "mg/L", 500, 2000, "max"),
     "turb": ("Turbidity", "NTU", 1, 5, "max"),
@@ -106,7 +122,10 @@ def judge(key: str, v: float) -> str:
 
 
 def check_water(values: dict[str, float]) -> dict:
-    results, unsafe, high, invalid = [], [], [], []
+    results: list[dict[str, Any]] = []
+    unsafe: list[str] = []
+    high: list[str] = []
+    invalid: list[str] = []
     for key, v in values.items():
         if key not in IS10500 or v is None:
             continue
@@ -128,24 +147,60 @@ def check_water(values: dict[str, float]) -> dict:
             "results": results, "standard": "IS 10500:2012"}
 
 
-# Average monthly rainfall, Bengaluru, 1991–2021 (climate-data.org), mm
-MONTHLY_RAIN_MM = [4, 7, 16, 45, 131, 126, 134, 137, 125, 147, 65, 23]
-RUNOFF = 0.8  # share of roof rain captured: a common planning figure for concrete roofs
+# Monthly rainfall used by the rainwater planner (mm). Two documented options:
+RAIN_SERIES: dict[str, dict[str, Any]] = {
+    "bengaluru_estimate": {
+        "mm": [4, 7, 16, 45, 131, 126, 134, 137, 125, 147, 65, 23],
+        "label": "Bengaluru city, 1991–2021 monthly averages (climate-data.org; modelled estimate, not IMD)",
+        "status": "modelled", "url": "https://en.climate-data.org/asia/india/karnataka/bengaluru-4562/"},
+    "imd_sik_1901_2015": {
+        "mm": None,   # filled from data/processed/rainfall_analysis.json at first use
+        "label": "IMD South Interior Karnataka sub-division, 1901–2015 mean (official; regional, not city)",
+        "status": "historical", "url": "https://www.data.gov.in/resource/sub-divisional-monthly-rainfall-1901-2017"},
+}
+RUNOFF = 0.8  # default runoff coefficient: a commonly used planning figure for concrete roofs (user-adjustable)
+
+
+def rain_series(key: str) -> dict:
+    s = RAIN_SERIES[key]
+    if s["mm"] is None:
+        from . import data_store
+        s = {**s, "mm": [c["mean_mm"] for c in data_store.processed("rainfall_analysis.json")["climatology"]]}
+    return s
+
+
+def harvest_litres(rain_mm: float, area_sqm: float, runoff: float, efficiency: float) -> float:
+    """Harvestable water (L) = rainfall (mm) × area (m²) × runoff coefficient × collection efficiency.
+    Unit check: 1 mm of rain on 1 m² = 0.001 m³ = 1 litre."""
+    return rain_mm * area_sqm * runoff * efficiency
 
 
 def rwh_plan(length_ft: float, width_ft: float, built: str, roof_sqm: float, paved_sqm: float,
-             monthly_bill: float) -> dict:
+             monthly_bill: float, runoff: float = RUNOFF, efficiency: float = 1.0,
+             rainfall: str = "bengaluru_estimate", annual_rain_mm: float | None = None) -> dict:
     site = max(0.0, length_ft) * max(0.0, width_ft)
     threshold = 1200 if built == "new" else 2400  # BWSSB: 30x40 ft (2009+) / 60x40 ft (before 2009)
     mandatory = site >= threshold
     roof, paved, bill = max(0.0, roof_sqm), max(0.0, paved_sqm), max(0.0, monthly_bill)
     storage_l = roof * 20 + paved * 10  # BWSSB: 20 L per sq m roof + 10 L per sq m paved
-    monthly_kl = [round(roof * mm / 1000 * RUNOFF, 2) for mm in MONTHLY_RAIN_MM]
+    series = rain_series(rainfall)
+    mm = list(series["mm"])
+    if annual_rain_mm is not None:            # user override: keep the monthly pattern, scale to the given annual total
+        f = annual_rain_mm / sum(mm) if sum(mm) else 0
+        mm = [x * f for x in mm]
+    monthly_kl = [round(harvest_litres(x, roof, runoff, efficiency) / 1000, 2) for x in mm]
     return {
-        "site_sqft": site, "threshold_sqft": threshold, "mandatory": mandatory,
+        "site_sqft": site, "site_sqm": round(site * 0.09290304, 1), "threshold_sqft": threshold, "mandatory": mandatory,
         "min_storage_litres": round(storage_l),
         "yearly_harvest_kl": round(sum(monthly_kl), 1),
         "monthly_harvest_kl": monthly_kl,
+        "monthly_rain_mm": [round(x, 1) for x in mm],
+        "annual_rain_mm": round(sum(mm), 1),
         "first_year_penalty_avoided_rs": round(bill * 0.5 * 3 + bill * 9) if mandatory else 0,
-        "assumptions": "80% of roof rain captured; rainfall = 1991–2021 monthly averages",
+        "formula": "Harvest (L) = rainfall (mm) × roof area (m²) × runoff coefficient × collection efficiency",
+        "inputs": {"runoff_coefficient": runoff, "collection_efficiency": efficiency, "rainfall_series": rainfall},
+        "rainfall_source": {"label": series["label"], "status": series["status"], "url": series["url"],
+                            "scaled_to_annual_mm": annual_rain_mm},
+        "assumptions": f"Runoff coefficient {runoff}, collection efficiency {efficiency}; rainfall: {series['label']}"
+                       + (f", scaled to {annual_rain_mm} mm/year" if annual_rain_mm is not None else ""),
     }

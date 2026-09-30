@@ -1,0 +1,32 @@
+{
+  "version": "2026.09-1",
+  "about": "Weights and anchor points for the JalSetu water-risk score. Each component is scaled to 0–100 by linear interpolation between its 'low' (0 risk) and 'high' (100 risk) anchors, then weighted. Weights must sum to 1. Methodology: docs/water-risk-methodology.md",
+  "components": {
+    "rainfall":    {"weight": 0.25, "indicator": "Bengaluru Urban monsoon departure (%)", "low": 0,   "high": -60,
+                    "why": "0% = normal season; −60% is IMD's 'large deficient' boundary."},
+    "groundwater": {"weight": 0.25, "indicator": "Stage of groundwater extraction, Bengaluru Urban (%)", "low": 70, "high": 100,
+                    "why": "CGWB categories: up to 70% safe, above 100% over-exploited."},
+    "reservoir":   {"weight": 0.20, "indicator": "Cauvery reservoirs storage (% of capacity)", "low": 80, "high": 20,
+                    "why": "JalSetu planning choice: 80%+ full = comfortable, 20% or less = severe."},
+    "demand":      {"weight": 0.15, "indicator": "Unmet share of piped-water demand (%)", "low": 0, "high": 40,
+                    "why": "JalSetu planning choice: 0% gap = no pressure, 40% gap = maximum pressure."},
+    "quality":     {"weight": 0.10, "indicator": "Lake quality index (% of monitored lakes failing, blended with % in worst class)", "low": 0, "high": 100,
+                    "why": "Average of (share of lakes not in KSPCB class A–C) and (share in class E)."},
+    "community":   {"weight": 0.05, "indicator": "Verified community reports in the last 30 days", "low": 0, "high": 50,
+                    "why": "Only admin-verified reports count, so spam cannot move the score."}
+  },
+  "levels": [
+    {"level": "LOW", "min": 0},
+    {"level": "MODERATE", "min": 25},
+    {"level": "HIGH", "min": 50},
+    {"level": "CRITICAL", "min": 75}
+  ],
+  "stale_after_days": {"rainfall": 14, "reservoir": 14, "groundwater": 730, "demand": 365, "quality": 365, "community": 1},
+  "warning_rules": {
+    "rain_watch_pct": -20,
+    "rain_warning_pct": -40,
+    "reservoir_watch_pct": 50,
+    "groundwater_overexploited_pct": 100,
+    "community_hotspot_reports": 5
+  }
+}

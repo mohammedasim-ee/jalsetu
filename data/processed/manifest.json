@@ -1,0 +1,20 @@
+{
+ "pipeline_version": "2.0.0",
+ "generated_at": "2026-09-30T12:14:09Z",
+ "duration_s": 0.44,
+ "inputs": {
+  "bbmp_wards_kgis.geojson": "4a1186d15da9396c259a2c01b135ee5e903948d45de6e91c49e0ddd72f359a7b",
+  "imd_subdivision_monthly_rainfall_1901_2015.csv": "635c98a69f07e6ab028414d2411a1e3b4c9ac4b7a5ee4748701a32297d939de7",
+  "lakes.csv": "1ce42833d2d736a53eaa513adb9f477a6c17852ebd42ccbe3cd502ad938b3442",
+  "official_indicators.json": "7f095f9cb036e3004850232679fcd09e293354c58175e3a6ac89a4a975a18f98"
+ },
+ "outputs": {
+  "indicators.json": "fbc7935a6cdfe7c4f031c8512ae4d7965ae5949ac51f7ab05a7a51e20c3b7143",
+  "lakes.json": "83ef030377f10ae8fdfb818a14cba30ed7716b8efb7155c4e3be728708fca16e",
+  "localities.json": "3864592c93a3f0577bed7ec18834a0f1d28a2db9bc815d512886f5c9b18366c4",
+  "rainfall_analysis.json": "8f3910a18027fdd120ecafdd5f02e3c1bdf609531da7a2be495af826d0c2b40d",
+  "rainfall_monthly.csv": "bef026758d1c2f4a39e88d928c4a8d8e5d78eee97d441881cf0ebd1827e0eee6",
+  "validation_report.json": "79e7f771d14dfd5679ce19f353614d056c442c6c16eaf7c6d90225e5d3fbd866",
+  "wards.geojson": "6674f0d1db540762f77fd33353ddd543c301f81af5e83d0115c5ac16db242958"
+ }
+}

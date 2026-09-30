@@ -1,4 +1,7 @@
 tests/
+ml/tests/
+ml/artifacts/*.joblib
+data/raw/
 *.db
 __pycache__/
 .pytest_cache/

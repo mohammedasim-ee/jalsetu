@@ -1,0 +1,44 @@
+{
+ "rainfall": {
+  "file": "imd_subdivision_monthly_rainfall_1901_2015.csv",
+  "subdivision": "SOUTH INTERIOR KARNATAKA",
+  "rows_read": 115,
+  "rows_kept": 115,
+  "missing_values": 0,
+  "negative_values": 0,
+  "annual_sum_mismatch": 0,
+  "duplicate_years": 0,
+  "missing_years": [],
+  "issues": [],
+  "years": [
+   1901,
+   2015
+  ]
+ },
+ "wards": {
+  "features_read": 243,
+  "invalid": 0,
+  "duplicate_ids": 0,
+  "issues": [],
+  "features_kept": 243,
+  "points_before": 73546,
+  "points_after": 10999,
+  "total_area_km2": 709.8
+ },
+ "lakes": {
+  "rows_read": 7,
+  "rows_kept": 7,
+  "issues": []
+ },
+ "localities": {
+  "count": 28,
+  "outside_bbmp": [
+   "Electronic City"
+  ]
+ },
+ "indicators": {
+  "checks_passed": true,
+  "reservoir_readings": 4,
+  "districts": 2
+ }
+}

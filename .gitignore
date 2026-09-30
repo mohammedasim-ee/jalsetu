@@ -2,3 +2,6 @@ __pycache__/
 *.db
 .env
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+node_modules/

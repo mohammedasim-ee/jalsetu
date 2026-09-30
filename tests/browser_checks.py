@@ -1,6 +1,9 @@
 # Browser checks (42) used to verify the website. Needs: pip install playwright; a server on :8801 (normal) and :8802 (invalid AI key); big.jpg test photo.
-import asyncio, time
+import asyncio
+import time
+
 from playwright.async_api import async_playwright
+
 U="http://localhost:8801/"; U2="http://localhost:8802/"
 R=[]
 def ok(c,m): R.append((c,m)); print(("PASS " if c else "FAIL ")+m)

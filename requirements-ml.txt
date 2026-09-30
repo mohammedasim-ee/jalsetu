@@ -1,0 +1,5 @@
+# Only needed to retrain models (python ml/train.py) and to run the sklearn-equivalence tests.
+# The deployed server does NOT need these: it runs the exported JSON models in pure Python.
+scikit-learn==1.5.2
+numpy>=1.26
+joblib>=1.3

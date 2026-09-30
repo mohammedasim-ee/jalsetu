@@ -1,574 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>JalSetu</title>
+<meta name="description" content="Water security for Bengaluru: official data with sources, explainable risk score, early warnings, rainfall analytics and ML, map, community reports, treated-water exchange.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Kannada:wght@500;700&display=swap">
-<style>
-[hidden]{display:none!important}
-html,body{margin:0}
-:root{
-  --ground:#EDF2F0; --surface:#FFFFFF; --sunk:#E2EAE7; --ink:#10292B; --muted:#56706F; --line:#CCD9D5;
-  --accent:#0B7572; --accent-ink:#FFFFFF; --accent-soft:#D3ECE9; --rain:#3B6FB6; --rain-soft:#DCE7F6;
-  --ok:#2F8A55; --warn:#B7791F; --crit:#C23B2E; --ok-soft:#DDF0E3; --warn-soft:#F7EACF; --crit-soft:#F6DAD6;
-  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
-  --body:"IBM Plex Sans","Noto Sans Kannada",system-ui,-apple-system,sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    color-scheme:dark;
-    --ground:#0B1819; --surface:#122426; --sunk:#0F1F21; --ink:#E1EDEA; --muted:#8FA9A6; --line:#23393B;
-    --accent:#3DB6B0; --accent-ink:#06201F; --accent-soft:#16393A; --rain:#7FA8E6; --rain-soft:#1A2A40;
-    --ok:#5CC285; --warn:#E0A94A; --crit:#EE6F61; --ok-soft:#173726; --warn-soft:#3A2E14; --crit-soft:#3E1D1A;
-  }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --ground:#0B1819; --surface:#122426; --sunk:#0F1F21; --ink:#E1EDEA; --muted:#8FA9A6; --line:#23393B;
-  --accent:#3DB6B0; --accent-ink:#06201F; --accent-soft:#16393A; --rain:#7FA8E6; --rain-soft:#1A2A40;
-  --ok:#5CC285; --warn:#E0A94A; --crit:#EE6F61; --ok-soft:#173726; --warn-soft:#3A2E14; --crit-soft:#3E1D1A;
-}
-*{box-sizing:border-box}
-body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 100px}
-.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
-header.top{padding-top:18px;display:flex;flex-direction:column;gap:4px}
-.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.brand h1{font-family:var(--display);font-weight:800;font-size:30px;letter-spacing:-.02em;margin:0;line-height:1}
-.brand .kn{font-family:"Noto Sans Kannada",var(--display);font-weight:700;color:var(--accent);font-size:18px}
-.sub{color:var(--muted);margin:0;font-size:14px}
-.realbadge{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ok);background:var(--ok-soft);padding:4px 8px;border-radius:4px;align-self:flex-start}
-h2{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:-.01em;margin:0;text-wrap:balance}
-h3{font-family:var(--display);font-weight:600;font-size:16px;margin:0}
-.label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.muted{color:var(--muted)}
-.num{font-variant-numeric:tabular-nums;font-family:var(--mono)}
-p{margin:0}
-section.view{display:flex;flex-direction:column;gap:14px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.between{justify-content:space-between}
-.src{font-size:12px;color:var(--muted)}
-.src a{color:var(--accent)}
-.alert{border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;background:var(--crit-soft);color:var(--ink);border:1px solid var(--crit)}
-.alert .lvl{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--crit);font-weight:500}
-.big{font-family:var(--display);font-weight:800;font-size:44px;line-height:1;color:var(--crit);font-variant-numeric:tabular-nums}
-.rainbars{display:flex;flex-direction:column;gap:10px}
-.rb{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;align-items:center;font-size:13.5px}
-.rb .tr{position:relative;height:22px;background:var(--sunk);border-radius:4px;overflow:hidden}
-.rb .tr i{position:absolute;left:0;top:0;bottom:0;background:var(--rain);border-radius:4px}
-.rb .tr b{position:absolute;top:0;bottom:0;width:2px;background:var(--ink)}
-.rb .cap{grid-column:2;font-size:12.5px;color:var(--muted)}
-.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.fact{background:var(--sunk);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
-.fact b{font-family:var(--display);font-weight:800;font-size:22px;line-height:1.1;font-variant-numeric:tabular-nums}
-.fact span{font-size:12.5px;color:var(--muted)}
-.fact a{font-size:11.5px;color:var(--accent)}
-.status{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:14px;align-items:start}
-.pill{font-family:var(--mono);font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;letter-spacing:.04em;white-space:nowrap}
-.p-ok{background:var(--ok-soft);color:var(--ok)} .p-warn{background:var(--warn-soft);color:var(--warn)} .p-crit{background:var(--crit-soft);color:var(--crit)} .p-idle{background:var(--sunk);color:var(--muted)}
-button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;background:var(--accent);color:var(--accent-ink)}
-button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
-button.small{padding:6px 10px;font-size:13.5px}
-button.plain{background:transparent;color:var(--muted);padding:4px 6px;font-weight:500;font-size:13px}
-button:disabled{opacity:.5;cursor:default}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-form{display:flex;flex-direction:column;gap:10px}
-label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500}
-input,select,textarea{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--ground);color:var(--ink);width:100%}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.grid2:has(> #priceWrap[hidden]){grid-template-columns:1fr}
-.list{display:flex;flex-direction:column}
-.item{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
-.item:first-child{border-top:0}
-.item small{display:block;color:var(--muted);font-size:12.5px}
-.empty{color:var(--muted);font-size:14px;text-align:center;padding:14px 8px}
-.aiv{margin-top:4px;font-size:12px;padding:5px 8px;border-radius:6px;display:inline-block}
-.aiv.good{background:var(--ok-soft);color:var(--ok)} .aiv.bad{background:var(--crit-soft);color:var(--crit)} .aiv.wait{background:var(--sunk);color:var(--muted)}
-.hot{display:grid;grid-template-columns:minmax(0,1fr) 110px 30px;gap:10px;align-items:center;font-size:14px}
-.hot .tr{height:10px;background:var(--sunk);border-radius:5px;overflow:hidden}
-.hot .tr i{display:block;height:100%;background:var(--crit);border-radius:5px}
-.match{background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:13.5px;display:flex;flex-direction:column;gap:2px}
-.match.un{background:var(--warn-soft)}
-table.q{width:100%;border-collapse:collapse;font-size:13.5px}
-table.q th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:500;padding:6px 6px;border-bottom:1px solid var(--line)}
-table.q td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
-table.q input{padding:6px 8px;width:92px}
-@media (max-width:440px){table.q th,table.q td{padding:6px 3px}table.q input{width:62px;padding:6px 6px}table.q td:nth-child(3){font-size:11.5px}table.q .pill{padding:3px 6px}}
-@media (max-width:340px){.panel{padding:12px 10px}table.q{table-layout:fixed}table.q th:nth-child(1){width:34%}table.q th:nth-child(2){width:21%}table.q th:nth-child(3){width:25%}table.q th:nth-child(4){width:20%}table.q input{width:100%;padding:6px 4px}table.q td:first-child{font-size:12.5px;overflow-wrap:anywhere}table.q td:nth-child(3){font-size:10.5px}table.q .pill{font-size:10px;padding:2px 4px}}
-.tw{overflow-x:auto}
-.verdict{border-radius:10px;padding:12px 14px;font-size:14.5px;display:flex;flex-direction:column;gap:4px}
-.verdict.ok{background:var(--ok-soft)} .verdict.warn{background:var(--warn-soft)} .verdict.crit{background:var(--crit-soft)}
-.verdict b{font-family:var(--display);font-size:18px}
-.months{display:flex;align-items:flex-end;gap:4px;height:130px}
-.months .c{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
-.months .c i{width:100%;background:var(--rain);border-radius:3px 3px 0 0;min-height:2px}
-.months .c span{font-family:var(--mono);font-size:10px;color:var(--muted)}
-.months .c em{font-style:normal;font-family:var(--mono);font-size:10px}
-.out{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.aibox{white-space:pre-wrap;font-size:14px;background:var(--accent-soft);border-radius:8px;padding:10px 12px}
-.plan{display:grid;grid-template-columns:auto 1fr;gap:8px 10px;font-size:14px;align-items:start}
-details.panel summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px}
-details.panel summary::-webkit-details-marker{display:none}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;padding-inline:max(0px,calc((100% - 720px) / 2));background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
-nav.tabs button{background:transparent;color:var(--muted);border-radius:0;padding:11px 2px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;font-weight:500}
-nav.tabs button[aria-selected="true"]{color:var(--accent);box-shadow:inset 0 3px 0 var(--accent)}
-nav.tabs svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--ground);padding:10px 16px;border-radius:8px;font-size:14px;z-index:6;max-width:calc(100% - 32px)}
-@media (max-width:440px){.grid2,.out{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}.fact b{font-size:19px}.rb{grid-template-columns:90px 1fr}.hot{grid-template-columns:minmax(0,1fr) 70px 26px}}
-</style>
-
+<link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><h1>JalSetu</h1><span class="kn">ಜಲಸೇತು</span></div>
-    <p class="sub">Water security for Bengaluru: early warning, treated-water sharing, water quality and recharge</p>
-    <div class="row" style="gap:6px"><span class="realbadge">Real data only · every figure is sourced</span><span class="realbadge" id="srvBadge" style="color:var(--muted);background:var(--sunk)">Connecting to server…</span></div>
+    <div class="topbar">
+      <div class="brand"><h1>JalSetu</h1><span class="kn">ಜಲಸೇತು</span></div>
+      <div class="acct" id="acct"><button class="small ghost" id="loginBtn" type="button">Log in</button></div>
+    </div>
+    <p class="sub">What is happening to Bengaluru's water, what could happen next, why the risk is changing, and what to do.</p>
+    <div class="row" style="gap:6px"><span class="realbadge">Every figure shows its source, date and status</span><span class="realbadge" id="srvBadge" style="color:var(--muted);background:var(--sunk)">Connecting to server…</span></div>
+    <div class="banner demo" id="demoBanner" hidden>DATA MODE: DEMONSTRATION. Rows marked DEMO are invented examples and never count toward the risk score.</div>
   </header>
 
-  <!-- ================= NOW ================= -->
-  <section class="view" id="v-now">
-    <div class="alert">
-      <span class="lvl">Early warning · Bengaluru Urban</span>
-      <div class="row" style="align-items:baseline;gap:12px"><span class="big num" id="defBig">−48%</span><span style="font-weight:600">less monsoon rain than normal this season</span></div>
-      <p style="font-size:14px"><span id="alertFig">IMD recorded <b class="num">227.7 mm</b> from 1 June to 28 September 2026 against a normal of <b class="num">441.6 mm</b>.</span> Less rain means less groundwater recharge, so borewell-dependent areas face a harder summer in 2027.</p>
-      <p class="src">Source: <a id="alertSrc" href="https://mausam.imd.gov.in/bengaluru/mcdata/cum_stats.pdf" target="_blank" rel="noopener">IMD Bengaluru, district rainfall summary, 28 Sep 2026</a></p>
+  <!-- ================= OVERVIEW ================= -->
+  <section class="view" id="v-overview" aria-label="Overview">
+    <div class="panel" id="riskPanel"><div class="loading">Calculating water risk…</div></div>
+    <div class="panel"><div class="row between"><h2>Early warnings</h2><span class="label" id="warnCount"></span></div>
+      <div id="warnings" class="list" style="gap:8px"><div class="loading">Checking warning rules…</div></div>
+      <p class="src">Rule-based signals computed from the official indicators below. JalSetu planning signals, not official government warnings. Rules: <a href="https://github.com/mohammedasim-ee/jalsetu/blob/main/docs/water-risk-methodology.md" target="_blank" rel="noopener">methodology</a>.</p>
     </div>
-
-    <div class="panel">
-      <div class="row between"><h2>Monsoon so far</h2><span class="label" id="rainPeriod">1 Jun – 28 Sep 2026</span></div>
-      <div class="rainbars" id="rainbars"></div>
-      <p class="src">Bar = rain received. Black line = normal. Source: <a href="https://mausam.imd.gov.in/bengaluru/mcdata/cum_stats.pdf" target="_blank" rel="noopener">IMD</a>.</p>
+    <h2>The indicators behind the score</h2>
+    <div class="cards" id="indCards"><div class="loading">Loading official figures…</div></div>
+    <div class="panel"><div class="row between"><h2>Community reports</h2><span class="label">last 30 days</span></div>
+      <div id="hotspots"><div class="loading">Loading…</div></div>
+      <p class="src">Counts exclude rejected reports and photos the AI flagged as not matching. Only admin-verified reports add to the risk score.</p>
     </div>
+    <div class="panel"><div class="row between"><h2>Risk score history</h2><span class="label" id="histCount"></span></div><div id="riskHist"></div></div>
+  </section>
 
-    <div class="panel">
-      <div class="row between"><h2>Three signals, one reading</h2><span class="label">latest data</span></div>
-      <div class="status" id="sigList">
-        <span class="pill p-crit">Rain</span><span><b>Alert.</b> Bengaluru Urban −48%, Bengaluru Rural −20% vs normal, 1 Jun–28 Sep 2026. <a class="src" href="https://mausam.imd.gov.in/bengaluru/mcdata/cum_stats.pdf" target="_blank" rel="noopener">IMD</a></span>
-        <span class="pill p-warn">Reservoirs</span><span><b>Holding.</b> 5 Cauvery dams at 54.99 of 86.30 TMC (63.7%) on 5 Sep 2026: KRS 59.4%, Kabini 57.4%, Harangi 87.5%. <a class="src" href="https://ibcworldnews.com/2026/09/05/cauvery-reservoirs-under-pressure/" target="_blank" rel="noopener">IBC World News</a></span>
-        <span class="pill p-crit">Groundwater</span><span><b>Over-used.</b> About 1,372 MLD pumped against about 148 MLD of natural recharge (2024 estimate). <a class="src" href="https://m.thewire.in/article/environment/whats-causing-bengalurus-water-crisis" target="_blank" rel="noopener">The Wire / WELL Labs</a></span>
+  <!-- ================= RAIN + ML ================= -->
+  <section class="view" id="v-rain" hidden aria-label="Rainfall and models">
+    <div class="panel"><h2>This monsoon (1 Jun – 28 Sep 2026)</h2><div class="rainbars" id="rainbars"></div><p class="src" id="rainSrc"></p></div>
+    <div class="panel"><div class="row between"><h2>115 years of monsoon rain</h2><span class="label">South Interior Karnataka · IMD</span></div>
+      <div id="seasonChart"></div>
+      <div class="legend"><span><i style="background:var(--rain)"></i>Jun–Sep total</span><span><i style="background:var(--crit)"></i>Deficient season (≤ −20%)</span><span><i style="background:var(--ink)"></i>10-year moving average</span><span><i style="background:var(--muted)"></i>1901–2015 mean</span></div>
+      <p id="trendText" style="font-size:14px"></p>
+      <p class="src" id="histSrc"></p>
+    </div>
+    <div class="panel"><div class="row between"><h2>Monthly anomaly</h2><label class="f" style="flex-direction:row;align-items:center;gap:6px">Year <select id="anYear" style="width:auto"></select></label></div>
+      <div id="anomChart"></div><p class="src">Anomaly = observed − expected, where expected is the 1901–2015 mean for that month.</p></div>
+
+    <div class="panel"><h2>ML: will this monsoon end deficient?</h2>
+      <p class="muted" style="font-size:14px">A Random Forest trained on 1901–2015 gives, at the end of July, a risk score that the June–September season ends 20% or more below normal. Try a real past year, or type your own departures.</p>
+      <div class="grid2">
+        <label class="f">Load a past year<select id="mlYear"><option value="">Choose…</option></select></label>
+        <div id="mlActual" class="muted" style="font-size:13px;align-self:end"></div>
       </div>
-      <div class="verdict crit" style="margin-top:4px" id="readingBox"><b>Reading for summer 2027</b><span id="readingText"><b>Borewell and tanker areas: Alert.</b> Weak rain on top of over-pumped groundwater. Plan recharge pits and treated-water reuse now.<br><b>Cauvery-piped areas: lower near-term risk</b> while the reservoirs hold about two-thirds.</span></div>
-      <p class="muted" style="font-size:13px">The northeast monsoon (October–December) can still reduce the deficit; October is normally Bengaluru's wettest month (about 147 mm, 1991–2021 average). Rain thresholds used: 40%+ short = Alert, 20–39% = Watch. These are JalSetu's planning rules applied to official data, not an official IMD or BWSSB warning.</p>
+      <form id="mlForm">
+        <div class="grid2">
+          <label class="f">June departure (%)<input id="mlJun" type="number" step="0.1" value="-30" required></label>
+          <label class="f">July departure (%)<input id="mlJul" type="number" step="0.1" value="-25" required></label>
+          <label class="f">Pre-monsoon Mar–May departure (%)<input id="mlPre" type="number" step="0.1" value="0"></label>
+          <label class="f">Previous Oct–Dec departure (%)<input id="mlOnd" type="number" step="0.1" value="0"></label>
+        </div>
+        <button type="submit">Run the model</button>
+      </form>
+      <div id="mlOut"></div>
     </div>
-
-    <div class="panel">
-      <div class="row between"><h2>Community reports</h2><span class="label">last 30 days</span></div>
-      <p class="muted" style="font-size:13.5px">Reported by JalSetu users in the Report tab. Areas with repeated dry-borewell reports are the first sign of local stress.</p>
-      <div id="hotspots" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="panel"><h2>How accurate are the models?</h2><div id="mlEval"><div class="loading">Loading evaluation…</div></div></div>
+    <div class="panel"><h2>Forecast: next month's rain</h2><div id="fcOut"></div></div>
+    <div class="panel"><h2>Unusual months (Isolation Forest)</h2><div id="anomList"></div>
+      <form id="anForm" class="grid2" style="display:grid">
+        <label class="f">Month<select id="anM"></select></label>
+        <label class="f">Rain this month (mm)<input id="anR" type="number" min="0" step="0.1" value="108.9" required></label>
+        <label class="f">Previous month (mm)<input id="anP1" type="number" min="0" step="0.1" value="1" required></label>
+        <label class="f">Month before that (mm)<input id="anP2" type="number" min="0" step="0.1" value="2" required></label>
+        <button type="submit" style="grid-column:1/-1">Check this month</button>
+      </form>
+      <div id="anOut"></div>
     </div>
+  </section>
 
-    <div class="panel">
-      <h2>Why this matters</h2>
-      <div class="facts">
-        <div class="fact"><b class="num">6,900</b><span>of 13,900 city borewells dried up in 2024, said D.K. Shivakumar (then Deputy CM)</span><a href="https://sandrp.in/2025/03/05/2024-bengaluru-groundwater-top-ten-reports-problems-causes-solutions/" target="_blank" rel="noopener">SANDRP, 2025</a></div>
-        <div class="fact"><b class="num">~500 MLD</b><span>daily shortfall against about 2,600 MLD demand (2024 BWSSB estimate, before Stage V)</span><a href="https://neerain.com/bengaluru-water-crisis/" target="_blank" rel="noopener">Neerain, 2026</a></div>
-        <div class="fact"><b class="num">485 of 775</b><span>MLD of Cauvery Stage V in use; ~1,935 MLD supplied citywide (Aug 2026)</span><a href="https://nammaward.in/wardpulse/cauvery-5th-stage-is-supplying-485-mld-of-its-775-mld-capacity" target="_blank" rel="noopener">Council reply via NammaWard</a></div>
-        <div class="fact"><b class="num">26.5%</b><span>of piped water unaccounted for in 2025, down from ~51% in 2013</span><a href="https://www.constructionworld.in/urban-infrastructure/wastewater-and-sewage-treatment/bengaluru-cuts-unaccounted-for-water-to-26.5-per-cent/97583" target="_blank" rel="noopener">Construction World</a></div>
-        <div class="fact"><b class="num">580 MLD</b><span>of sewage left untreated out of 2,300 MLD generated</span><a href="https://sandrp.in/2025/03/05/2024-bengaluru-groundwater-top-ten-reports-problems-causes-solutions/" target="_blank" rel="noopener">SANDRP, 2025</a></div>
-        <div class="fact"><b class="num">0 of 149</b><span>lakes met Class A, B or C in KSPCB checks, Apr–Nov 2025</span><a href="https://newskarnataka.com/bengaluru/nearly-40-bengaluru-lakes-in-worst-water-quality-class/22022026" target="_blank" rel="noopener">News Karnataka, Feb 2026</a></div>
-      </div>
+  <!-- ================= MAP ================= -->
+  <section class="view" id="v-map" hidden aria-label="Map">
+    <div class="panel"><div class="row between"><h2>Bengaluru map</h2>
+      <div class="row" style="gap:6px"><select id="fCat" aria-label="Filter reports by category" style="width:auto"><option value="">All categories</option></select>
+      <select id="fStatus" aria-label="Filter reports by status" style="width:auto"><option value="">All statuses</option></select></div></div>
+      <div id="map" role="region" aria-label="Interactive map of Bengaluru wards, lakes and reports"></div>
+      <div class="legend"><span><i style="background:var(--rain)"></i>Lake (Wikipedia location)</span><span><i style="background:var(--crit)"></i>Report</span><span><i style="background:var(--accent)"></i>Treated-water offer</span><span><i style="background:var(--warn)"></i>Request</span><span>Ward shading = community reports (30 days)</span></div>
+      <div id="wardInfo" class="panel" style="background:var(--sunk)"><p class="muted" style="font-size:13.5px">Tap a ward to see its reports and lakes.</p></div>
+      <p class="src" id="mapSrc"></p>
     </div>
-
-    <details class="panel">
-      <summary><h3>Roadmap and AI status</h3><span class="label">tap to open</span></summary>
-      <div class="plan" style="margin-top:6px">
-        <span class="pill p-idle">Planned</span><span><b>Ward-level shortage forecast (ML).</b> Needs BWSSB ward supply logs and CGWB observation-well levels. Not public today, so not shown.</span>
-        <span class="pill p-idle">Planned</span><span><b>IoT sensors</b> on borewells and lake inlets. Needs hardware and BWSSB or RWA permission.</span>
-        <span class="pill p-idle" id="aiPill">AI off</span><span><b>AI photo checks and lab-report reading.</b> Built into the JalSetu server; they switch on when the server has an AI key.</span>
-        <span class="pill p-idle">Planned</span><span><b>Ward map (GIS).</b> Needs ward boundary files and the data above.</span>
-      </div>
-      <p class="muted" style="font-size:13px">JalSetu shows nothing for these until real data exists, rather than inventing numbers. Reports and listings are stored on the JalSetu server.</p>
-    </details>
   </section>
 
   <!-- ================= REPORT ================= -->
-  <section class="view" id="v-report" hidden>
-    <div class="panel">
-      <h2>Report a water problem</h2>
-      <p class="muted" style="font-size:13.5px">Reports are saved on the JalSetu server and shared with everyone. They feed the Community reports on the Now tab.</p>
-      <form id="repForm">
-        <label class="f">What happened<select id="rType">
-          <option value="dry">Borewell has gone dry</option>
-          <option value="low">Borewell yield has dropped</option>
-          <option value="sewage">Sewage flowing into a lake or drain</option>
-          <option value="tanker">Tanker price I paid</option>
-          <option value="quality">Bad water colour or smell</option>
-        </select></label>
+  <section class="view" id="v-report" hidden aria-label="Report a problem">
+    <div class="panel"><h2>Report a water problem</h2>
+      <p class="muted" style="font-size:14px">Reports are saved on the JalSetu server and shared with everyone. An admin reviews each one (Submitted → Under review → Verified → Resolved, or Rejected). Only verified reports count toward the risk score.</p>
+      <form id="repForm" novalidate>
         <div class="grid2">
-          <label class="f">Area<select id="rArea"></select></label>
-          <label class="f" id="priceWrap" hidden>Price paid (₹)<input id="rPrice" type="number" min="1" inputmode="numeric"></label>
-          <label class="f" id="litresWrap" hidden>Tanker size (litres)<select id="rLitres"><option>6000</option><option>8000</option><option>12000</option></select></label>
+          <label class="f">What happened<select id="rCat" required></select></label>
+          <label class="f">Area<select id="rArea"><option value="">Pick on the map instead</option></select></label>
         </div>
-        <label class="f">Details<textarea id="rNote" rows="2" placeholder="For example: 1,000 ft borewell stopped yielding this week"></textarea></label>
-        <label class="f" id="rPhotoLabel">Photo (optional)<input id="rPhoto" type="file" accept="image/*"></label>
-        <p class="muted" id="aiNote" style="font-size:12.5px;margin-top:-4px">Checking the server…</p>
+        <div class="row" style="gap:8px"><button class="small ghost" type="button" id="useLoc">Use my location</button><span class="muted" id="locNote" style="font-size:13px">Or tap the map to place the report exactly.</span></div>
+        <div id="pickMap" aria-label="Map to choose the report location"></div>
+        <div class="grid2" id="tankerWrap" hidden>
+          <label class="f">Price paid (₹)<input id="rPrice" type="number" min="1" max="100000" inputmode="numeric"></label>
+          <label class="f">Tanker size<select id="rLitres"><option value="6000">6,000 L</option><option value="8000">8,000 L</option><option value="12000">12,000 L</option></select></label>
+        </div>
+        <label class="f">Details<textarea id="rDesc" rows="2" maxlength="500" placeholder="For example: 1,000 ft borewell stopped yielding this week"></textarea></label>
+        <label class="f">Photo (optional)<input id="rPhoto" type="file" accept="image/*"></label>
+        <p class="muted" id="aiNote" style="font-size:12.5px"></p>
         <button type="submit" id="repBtn">Submit report</button>
+        <p class="err" id="repErr" role="alert"></p>
       </form>
-      <p class="muted" id="dbNote" style="font-size:13px" hidden></p>
     </div>
-    <div class="panel">
-      <div class="row between"><h2>Recent reports</h2><span class="label" id="repCount"></span></div>
-      <div class="list" id="reports"></div>
-    </div>
-    <div class="panel" id="tankerPanel" hidden>
-      <h3>Tanker prices reported</h3>
-      <div id="tankerStats"></div>
-      <p class="src">For comparison: in March 2024 the Bengaluru Urban Deputy Commissioner capped prices at ₹600 for 6,000 L within 5 km, for four months only. <a href="https://www.thenewsminute.com/karnataka/bengaluru-district-administration-introduces-fixed-rates-for-water-tankers" target="_blank" rel="noopener">The News Minute</a></p>
-    </div>
+    <div class="panel"><div class="row between"><h2>Recent reports</h2><span class="label" id="repCount"></span></div><div class="list" id="reports"></div></div>
   </section>
 
-  <!-- ================= SHARE ================= -->
-  <section class="view" id="v-share" hidden>
-    <div class="panel">
-      <h2>Treated water exchange</h2>
-      <p style="font-size:14px">Apartments with a sewage treatment plant (STP) list surplus treated water. Construction sites and industries that need non-drinking water list what they need. JalSetu matches the nearest pairs.</p>
-      <div class="facts">
-        <div class="fact"><b class="num">₹10/kL</b><span>BWSSB price for treated water to construction, plus transport</span><a href="https://www.pressreader.com/india/the-hindu-bangalore-9WW1/20240403/281651080121605" target="_blank" rel="noopener">The Hindu, Apr 2024</a></div>
-        <div class="fact"><b class="num">3,500+</b><span>apartment STPs in the BWSSB and apartment federation tie-up</span><a href="https://www.pressreader.com/india/the-hindu-bangalore-9WW1/20240403/281651080121605" target="_blank" rel="noopener">The Hindu, Apr 2024</a></div>
-      </div>
-      <p class="src">Selling treated water from apartment STPs has been allowed by the state since March 2024. <a href="https://www.deccanherald.com/india/karnataka/bengaluru/govt-rule-to-allow-sale-of-treated-water-brings-relief-to-apartments-2928935" target="_blank" rel="noopener">Deccan Herald</a></p>
+  <!-- ================= EXCHANGE ================= -->
+  <section class="view" id="v-exchange" hidden aria-label="Treated-water exchange">
+    <div class="panel"><h2>Treated-water exchange</h2>
+      <p class="muted" style="font-size:14px">Apartments and campuses with sewage treatment plants (STPs) offer surplus treated water for non-drinking uses; builders, gardens and others request it. Matching ranks offers by distance, quantity and dates, after checking the use is approved and the treatment level is acceptable. JalSetu lists and matches; it does not handle payments.</p>
+      <div class="facts" id="exFacts"></div>
+      <div id="exLogin" class="banner" style="background:var(--sunk);color:var(--muted)">Log in to add an offer (organization accounts) or a request (any account).</div>
     </div>
-    <div class="panel">
-      <h3>Add a listing</h3>
-      <form id="listForm">
+    <div class="panel" id="offerPanel" hidden><h2>Offer treated water</h2>
+      <form id="offerForm">
         <div class="grid2">
-          <label class="f">I want to<select id="lKind"><option value="supply">Offer surplus treated water</option><option value="demand">Get non-drinking water</option></select></label>
-          <label class="f">Area<select id="lArea"></select></label>
+          <label class="f">Organization<input id="oOrg" maxlength="120" required></label>
+          <label class="f">Area<select id="oArea" required></select></label>
+          <label class="f">Quantity (kL per day)<input id="oQty" type="number" min="1" max="5000" required></label>
+          <label class="f">Treatment level<select id="oTreat"><option value="secondary">Secondary</option><option value="tertiary">Tertiary</option></select></label>
+          <label class="f">Available from<input id="oFrom" type="date" required></label>
+          <label class="f">Available to<input id="oTo" type="date" required></label>
+          <label class="f">BOD, mg/L (optional)<input id="oBod" type="number" min="0" step="0.1"></label>
+          <label class="f">TSS, mg/L (optional)<input id="oTss" type="number" min="0" step="0.1"></label>
         </div>
-        <div class="grid2">
-          <label class="f">Name of apartment, site or company<input id="lName" required maxlength="60"></label>
-          <label class="f">Quantity (kL per day)<input id="lQty" type="number" min="1" max="2000" required inputmode="numeric"></label>
-        </div>
-        <button type="submit">Add listing</button>
+        <fieldset style="border:1px solid var(--line);border-radius:8px"><legend class="label">Approved reuse categories</legend><div class="chips" id="oCats"></div></fieldset>
+        <label class="f">Quality notes<input id="oNotes" maxlength="300" placeholder="e.g. tested monthly by an NABL lab"></label>
+        <button type="submit">Add offer</button><p class="err" id="offerErr" role="alert"></p>
       </form>
     </div>
-    <div class="grid2">
-      <div class="panel"><div class="label">Supply (kL/day)</div><div class="list" id="supplyList"></div></div>
-      <div class="panel"><div class="label">Demand (kL/day)</div><div class="list" id="demandList"></div></div>
+    <div class="panel" id="reqPanel" hidden><h2>Request treated water</h2>
+      <form id="reqForm">
+        <div class="grid2">
+          <label class="f">Your name or site<input id="qName" maxlength="120" required></label>
+          <label class="f">Area<select id="qArea" required></select></label>
+          <label class="f">Quantity (kL per day)<input id="qQty" type="number" min="1" max="5000" required></label>
+          <label class="f">Purpose<select id="qPurpose"></select></label>
+          <label class="f">Needed from<input id="qFrom" type="date" required></label>
+          <label class="f">Needed to<input id="qTo" type="date" required></label>
+          <label class="f">Minimum treatment<select id="qMin"><option value="secondary">Secondary</option><option value="tertiary">Tertiary</option></select></label>
+        </div>
+        <button type="submit">Add request</button><p class="err" id="reqErr" role="alert"></p>
+      </form>
     </div>
-    <div class="panel">
-      <div class="row between"><h2>Matches</h2><button class="small" id="runMatch" type="button">Find matches</button></div>
-      <label class="f">Fresh tanker water price you'd otherwise pay (₹ per kL)<input id="freshPrice" type="number" min="0" value="100" inputmode="numeric"></label>
-      <p class="muted" style="font-size:12.5px">Default ₹100/kL is the 2024 capped rate (₹600 per 6,000 L). Change it to what you actually pay.</p>
-      <div id="matches" style="display:flex;flex-direction:column;gap:8px"></div>
-      <p class="muted" id="matchSum" style="font-size:13.5px"></p>
+    <div class="panel"><div class="row between"><h2>Offers</h2><span class="label" id="offCount"></span></div><div class="list" id="offers"></div></div>
+    <div class="panel"><div class="row between"><h2>Requests and ranked matches</h2>
+      <label class="f" style="flex-direction:row;align-items:center;gap:6px;font-size:12.5px">Fresh water ₹/kL<input id="freshPrice" type="number" min="0" value="100" style="width:80px"></label></div>
+      <p class="muted" style="font-size:12.5px">Default ₹100/kL is the 2024 capped tanker rate (₹600 per 6,000 L). Saving = matched kL × (fresh price − ₹10 treated price); transport cost is not included.</p>
+      <div class="list" id="requests"></div>
     </div>
   </section>
 
   <!-- ================= QUALITY ================= -->
-  <section class="view" id="v-quality" hidden>
-    <div class="panel">
-      <h2>Is this water safe to drink?</h2>
-      <p class="muted" style="font-size:13.5px">Enter the results from a lab test of borewell, tanker or tap water. Every value is checked against the Indian drinking water standard, IS 10500:2012.</p>
-      <label class="f" id="labAI" hidden>Photo of lab report (AI reads it)<input id="labPhoto" type="file" accept="image/*"></label><p class="muted" id="labNote" style="font-size:13px"></p>
+  <section class="view" id="v-quality" hidden aria-label="Water quality">
+    <div class="panel"><h2>Is this water safe to drink?</h2>
+      <p class="muted" style="font-size:14px">Enter results from a lab test. Each value is checked against the Indian drinking-water standard IS 10500:2012 (acceptable limit, and the permissible limit allowed only when no better source exists).</p>
+      <div id="labAI" hidden><label class="f">Read values from a lab-report photo (AI)<input id="labPhoto" type="file" accept="image/*"></label><p class="muted" id="labNote" style="font-size:13px"></p></div>
       <div class="tw"><table class="q"><thead><tr><th>Parameter</th><th>Your result</th><th>Limit (acceptable / max)</th><th>Status</th></tr></thead><tbody id="qBody"></tbody></table></div>
       <div id="qVerdict"></div>
-      <p class="src">Limits from <a href="https://law.resource.org/pub/in/bis/S06/is.10500.2012.pdf" target="_blank" rel="noopener">IS 10500:2012 (BIS)</a>. "Max" is the permissible limit when no other source is available. This checks numbers only; it isn't a medical opinion.</p>
+      <p class="src">Standard: IS 10500:2012, Bureau of Indian Standards. Explanation of every limit: <a href="https://github.com/mohammedasim-ee/jalsetu/blob/main/docs/water-quality-standards.md" target="_blank" rel="noopener">water-quality-standards.md</a>. This is a check against a standard, not medical advice.</p>
     </div>
-    <div class="panel">
-      <h2>Bengaluru lakes</h2>
-      <p style="font-size:14px">KSPCB monitored <b>149 lakes</b> from April to November 2025. <b>None</b> met Class A, B or C. On average about <b>60%</b> were Class D and <b>40%</b> Class E, the worst class. In May 2025, 46.6% were Class E.</p>
-      <div class="facts">
-        <div class="fact"><b class="num">1.4 lakh</b><span>faecal coliform (MPN/100 ml) at Hosakerehalli Lake</span></div>
-        <div class="fact"><b class="num">225</b><span>faecal coliform (MPN/100 ml) at Sankey Tank</span></div>
-      </div>
-      <p class="muted" style="font-size:13.5px">Named in Class D/E: Madiwala, Varthur, Ulsoor, Jakkur, Yelahanka, Hosakerehalli, Chikkagubbi, Kannur, Rayasandra and others.</p>
-      <p class="src">Source: <a href="https://newskarnataka.com/bengaluru/nearly-40-bengaluru-lakes-in-worst-water-quality-class/22022026" target="_blank" rel="noopener">News Karnataka, 22 Feb 2026, on KSPCB data</a> · Monthly reports: <a href="https://data.opencity.in/dataset/bengaluru-lake-monthly-water-quality-reports" target="_blank" rel="noopener">OpenCity</a></p>
-    </div>
+    <div class="panel"><h2>Bengaluru lakes</h2><div id="lakeList"></div></div>
   </section>
 
   <!-- ================= RECHARGE ================= -->
-  <section class="view" id="v-recharge" hidden>
-    <div class="panel">
-      <h2>Rainwater harvesting planner</h2>
-      <p class="muted" style="font-size:13.5px">Check whether BWSSB requires rainwater harvesting (RWH) for your building, how big the storage must be, and how much water your roof can collect.</p>
+  <section class="view" id="v-recharge" hidden aria-label="Rainwater harvesting">
+    <div class="panel"><h2>Rainwater harvesting planner</h2>
       <form id="rwhForm">
         <div class="grid2">
-          <label class="f">Site length (ft)<input id="sL" type="number" min="1" value="40" inputmode="numeric"></label>
-          <label class="f">Site width (ft)<input id="sW" type="number" min="1" value="60" inputmode="numeric"></label>
-        </div>
-        <label class="f">Building built<select id="sAge"><option value="new">2009 or later</option><option value="old">Before 2009</option></select></label>
-        <div class="grid2">
+          <label class="f">Plot length (ft)<input id="sL" type="number" min="0" value="60" inputmode="numeric"></label>
+          <label class="f">Plot width (ft)<input id="sW" type="number" min="0" value="40" inputmode="numeric"></label>
+          <label class="f">Building built<select id="sAge"><option value="new">2009 or later</option><option value="old">Before 2009</option></select></label>
+          <label class="f">Monthly BWSSB water bill (₹)<input id="bill" type="number" min="0" value="800" inputmode="numeric"></label>
           <label class="f">Roof area (sq m)<input id="roof" type="number" min="0" value="150" inputmode="numeric"></label>
           <label class="f">Paved open area (sq m)<input id="paved" type="number" min="0" value="30" inputmode="numeric"></label>
+          <label class="f">Runoff coefficient<input id="runoff" type="number" min="0.05" max="1" step="0.05" value="0.8"></label>
+          <label class="f">Collection efficiency<input id="eff" type="number" min="0.05" max="1" step="0.05" value="1"></label>
+          <label class="f">Rainfall data<select id="rseries"><option value="bengaluru_estimate">Bengaluru estimate (climate-data.org, modelled)</option><option value="imd_sik_1901_2015">IMD South Interior Karnataka mean (official, regional)</option></select></label>
+          <label class="f">Annual rainfall override (mm, optional)<input id="annual" type="number" min="0" max="6000"></label>
         </div>
-        <label class="f">Monthly BWSSB water bill (₹)<input id="bill" type="number" min="0" value="600" inputmode="numeric"></label>
       </form>
+      <div id="rwhOut"></div>
     </div>
-    <div id="rwhOut" style="display:flex;flex-direction:column;gap:14px"></div>
   </section>
 </div>
 
-<nav class="tabs" role="tablist">
-  <button role="tab" data-v="now" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M12 3c3 4.5 6 7.8 6 11a6 6 0 0 1-12 0c0-3.2 3-6.5 6-11z"/><path d="M12 10v4M12 17v.5"/></svg>Now</button>
+<nav class="tabs" role="tablist" aria-label="Sections">
+  <button role="tab" data-v="overview" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/></svg>Overview</button>
+  <button role="tab" data-v="rain" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg>Rain+ML</button>
+  <button role="tab" data-v="map" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>Map</button>
   <button role="tab" data-v="report" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>Report</button>
-  <button role="tab" data-v="share" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>Share</button>
-  <button role="tab" data-v="quality" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/><path d="M7 15h10"/></svg>Quality</button>
-  <button role="tab" data-v="recharge" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 10l8-6 8 6"/><path d="M8 13v2M12 13v4M16 13v2"/><path d="M6 21h12"/></svg>Recharge</button>
+  <button role="tab" data-v="exchange" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>Exchange</button>
+  <button role="tab" data-v="quality" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/></svg>Quality</button>
+  <button role="tab" data-v="recharge" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Recharge</button>
 </nav>
-<div class="toast" id="toast" hidden></div>
 
-<script>
-const $=id=>document.getElementById(id);
-const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const inr=n=>"₹"+Math.round(n).toLocaleString("en-IN");
-let tt; function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,3000);}
+<dialog id="authDlg" aria-labelledby="authTitle">
+  <form id="authForm" method="dialog" novalidate>
+    <div class="row between"><h2 id="authTitle">Log in</h2><button class="plain" type="button" id="authClose" aria-label="Close">✕</button></div>
+    <div class="seg" role="group" aria-label="Log in or create account"><button type="button" id="modeLogin" aria-pressed="true">Log in</button><button type="button" id="modeReg" aria-pressed="false">Create account</button></div>
+    <label class="f">Email<input id="aEmail" type="email" autocomplete="email" required></label>
+    <label class="f">Password<input id="aPass" type="password" autocomplete="current-password" minlength="8" required></label>
+    <div id="regFields" hidden>
+      <label class="f">Your name<input id="aName" maxlength="80"></label>
+      <label class="f">Account type<select id="aRole"><option value="citizen">Citizen</option><option value="organization">Organization (can offer treated water)</option></select></label>
+      <label class="f" id="aOrgWrap" hidden>Organization name<input id="aOrg" maxlength="120"></label>
+      <p class="muted" style="font-size:12px">Passwords are stored only as a salted scrypt hash. Organization type is self-declared and not verified.</p>
+    </div>
+    <button type="submit" id="authSubmit">Log in</button>
+    <p class="err" id="authErr" role="alert"></p>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status" hidden></div>
 
-// Approximate locality centres (lat, lng), used only to measure distance between areas.
-const AREAS=[["Banashankari",12.9255,77.5468],["Basavanagudi",12.9422,77.5738],["Bellandur",12.9260,77.6762],["Bommanahalli",12.9030,77.6240],["BTM Layout",12.9166,77.6101],["Electronic City",12.8452,77.6602],["Hebbal",13.0358,77.5970],["Hennur",13.0350,77.6400],["HSR Layout",12.9116,77.6389],["Indiranagar",12.9784,77.6408],["Jayanagar",12.9250,77.5938],["JP Nagar",12.9063,77.5857],["Kengeri",12.9080,77.4820],["Koramangala",12.9352,77.6245],["KR Puram",13.0070,77.6960],["Mahadevapura",12.9916,77.6926],["Malleshwaram",13.0031,77.5643],["Marathahalli",12.9569,77.7011],["Peenya",13.0280,77.5190],["Rajajinagar",12.9910,77.5550],["RR Nagar",12.9274,77.5155],["Sarjapur Road",12.9100,77.6850],["Shivajinagar",12.9857,77.6057],["Varthur",12.9380,77.7410],["Vijayanagar",12.9719,77.5360],["Whitefield",12.9698,77.7500],["Yelahanka",13.1007,77.5963],["Yeshwanthpur",13.0280,77.5400]];
-const AREA=Object.fromEntries(AREAS.map(a=>[a[0],a]));
-function km(a,b){const A=AREA[a],B=AREA[b];if(!A||!B)return 99;const R=6371,r=Math.PI/180,dLa=(B[1]-A[1])*r,dLo=(B[2]-A[2])*r;const h=Math.sin(dLa/2)**2+Math.cos(A[1]*r)*Math.cos(B[1]*r)*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
-["rArea","lArea"].forEach(id=>$(id).innerHTML=AREAS.map(a=>`<option>${a[0]}</option>`).join(""));
-
-// ================= NOW: IMD rainfall (real, 28 Sep 2026) =================
-let IMD=[{d:"Bengaluru Urban",a:227.7,n:441.6},{d:"Bengaluru Rural",a:338.4,n:422.1}];
-function lvl(dep){return dep<=-40?["Alert","p-crit"]:dep<=-20?["Watch","p-warn"]:["Normal","p-ok"];}
-function renderRain(){
-  const mx=Math.max(...IMD.map(x=>Math.max(x.a,x.n)))*1.08;
-  $("rainbars").innerHTML=IMD.map(x=>{const dep=Math.round((x.a-x.n)/x.n*100);const [l,c]=lvl(dep);
-    return `<div class="rb"><span>${x.d}</span><span class="tr" role="img" aria-label="${x.a} mm of ${x.n} mm normal"><i style="width:${x.a/mx*100}%"></i><b style="left:${x.n/mx*100}%"></b></span>
-    <span class="cap"><span class="num">${x.a} mm</span> of <span class="num">${x.n} mm</span> normal · <span class="num">${dep<0?"−":dep>0?"+":""}${Math.abs(dep)}%</span> <span class="pill ${c}">${l}</span></span></div>`;}).join("");
-}
-renderRain();
-
-// ================= Server connection =================
-const API="/api";
-let SERVER={ok:false,ai:false};
-async function api(path,opts={}){
-  let res;
-  try{ res=await fetch(API+path,opts); }
-  catch(_){ throw {msg:"Can't reach the JalSetu server. Check your internet connection and try again."}; }
-  let j=null; try{ j=await res.json(); }catch(_){}
-  if(!res.ok) throw {msg:(j&&j.error)||`The server had a problem (${res.status}). Please try again.`,status:res.status};
-  return j;
-}
-function setStatus(ok,text){ const b=$("srvBadge"); b.textContent=text; b.style.color=ok?"var(--ok)":"var(--crit)"; b.style.background=ok?"var(--ok-soft)":"var(--crit-soft)"; }
-const MY={ get(){ try{ return JSON.parse(localStorage.getItem("jalsetu.mylistings")||"{}"); }catch(_){ return {}; } },
-           set(v){ try{ localStorage.setItem("jalsetu.mylistings",JSON.stringify(v)); }catch(_){} } };
-
-// ================= REPORT (shared with everyone through the server) =================
-const TYPE={dry:"Borewell dry",low:"Yield dropped",sewage:"Sewage inflow",tanker:"Tanker price",quality:"Bad water"};
-let REPORTS=[];
-$("rType").addEventListener("change",e=>{const t=e.target.value==="tanker";$("priceWrap").hidden=!t;$("litresWrap").hidden=!t;});
-async function loadReports(){
-  const j=await api("/reports?limit=200");
-  REPORTS=j.reports.map(r=>({...r,createdAt:r.created_at*1000,img:r.photo_url}));
-  renderReports();
-}
-async function loadListings(){ const j=await api("/listings"); LISTINGS=j.listings; renderListings(); }
-async function refresh(){
-  try{
-    const h=await api("/health"); SERVER=h;
-    setStatus(true,`Live · ${h.reports} report${h.reports===1?"":"s"}, ${h.listings} listing${h.listings===1?"":"s"}`);
-    $("rPhotoLabel").firstChild.textContent=h.ai?"Photo (optional, checked by AI)":"Photo (optional)";
-    $("labAI").hidden=!h.ai;
-    $("aiNote").textContent=h.ai?"AI checks that each photo matches the report.":"AI photo checks are off on this server. Your photo is still saved and shown.";
-    $("aiPill").textContent=h.ai?"AI on":"AI off"; $("aiPill").className="pill "+(h.ai?"p-ok":"p-idle");
-    await Promise.all([loadReports(),loadListings()]);
-  }catch(e){ setStatus(false,"Server not reachable"); $("dbNote").hidden=false; $("dbNote").textContent=e.msg; }
-}
-function ago(t){const m=Math.round((Date.now()-t)/60000);if(m<1)return"just now";if(m<60)return m+" min ago";const h=Math.round(m/60);if(h<24)return h+" h ago";return Math.round(h/24)+" d ago";}
-function renderReports(){
-  const R=REPORTS;
-  $("repCount").textContent=R.length?R.length+" shown":"";
-  $("reports").innerHTML=R.length?R.slice(0,30).map(r=>`<div class="item"><span><b>${esc(TYPE[r.type]||r.type)}</b> · ${esc(r.area)}${r.type==="tanker"&&r.price?` · <span class="num">${inr(r.price)}</span> for <span class="num">${Number(r.litres).toLocaleString("en-IN")} L</span>`:""}<small>${esc(r.note||"")}</small>${r.img?`<img src="${esc(r.img)}" alt="Report photo" loading="lazy" style="display:block;margin-top:6px;border-radius:6px;max-height:110px">`:""}${r.ai?`<span class="aiv ${esc(r.ai.cls)}">${esc(r.ai.text)}</span>`:""}</span><span class="muted" style="font-size:12px;white-space:nowrap">${ago(r.createdAt)}</span></div>`).join(""):`<div class="empty">No reports yet. Be the first to report a dry borewell, sewage inflow or tanker price in your area.</div>`;
-  const since=Date.now()-30*864e5, cnt={};
-  R.filter(r=>r.createdAt>=since&&["dry","low","sewage","quality"].includes(r.type)&&r.ai?.cls!=="bad").forEach(r=>{cnt[r.area]=(cnt[r.area]||0)+1;});
-  const rows=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,8), top=rows[0]?.[1]||1;
-  $("hotspots").innerHTML=rows.length?rows.map(([a,n])=>`<div class="hot"><span>${esc(a)}</span><span class="tr"><i style="width:${n/top*100}%"></i></span><span class="num">${n}</span></div>`).join(""):`<div class="empty">No community reports yet. They'll appear here as people add them in the Report tab.</div>`;
-  const T=R.filter(r=>r.type==="tanker"&&r.price>0&&r.litres>0);
-  $("tankerPanel").hidden=!T.length;
-  if(T.length){const per=T.map(r=>r.price/r.litres*1000);const avg=per.reduce((a,b)=>a+b,0)/per.length;
-    $("tankerStats").innerHTML=`<p style="font-size:14px">${T.length} price report(s). Average <b class="num">${inr(avg)}</b> per 1,000 L, which is <b class="num">${inr(avg*6)}</b> for a 6,000 L tanker.</p>`;}
-}
-let repBusy=false;
-$("repForm").addEventListener("submit",async e=>{
-  e.preventDefault(); if(repBusy) return; repBusy=true; try{ await submitReport(); } finally{ repBusy=false; }
-});
-async function submitReport(){
-  const fd=new FormData();
-  const type=$("rType").value; fd.append("type",type); fd.append("area",$("rArea").value); fd.append("note",$("rNote").value.trim().slice(0,300));
-  if(type==="tanker"){ const p=Number($("rPrice").value)||0; if(!(p>0)||p>100000){toast("Enter the price you paid, in rupees.");return;} fd.append("price",p); fd.append("litres",$("rLitres").value); }
-  const f0=$("rPhoto").files[0], f=f0?await shrink(f0,1280):null; if(f){ if(f.size>4*1024*1024){toast("That photo is too large. Choose a smaller one.");return;} fd.append("photo",f); }
-  const btn=$("repBtn"); btn.disabled=true; btn.textContent=f&&SERVER.ai?"AI is checking the photo…":"Saving…";
-  try{
-    const r=await api("/reports",{method:"POST",body:fd});
-    $("repForm").reset(); $("priceWrap").hidden=true; $("litresWrap").hidden=true;
-    toast(r.ai?.cls==="bad"?"Saved. The photo didn't match, so it won't count toward hotspots.":"Report saved and shared with everyone.");
-    await refresh();
-  }catch(err){ toast(err.msg); }
-  finally{ btn.disabled=false; btn.textContent="Submit report"; }
-}
-
-// Phone photos can be 5-10 MB; shrink them in the browser before upload (hosting limits requests to ~4.5 MB).
-async function shrink(f,max){
-  try{
-    const bmp=await createImageBitmap(f), s=Math.min(1,max/Math.max(bmp.width,bmp.height));
-    const c=document.createElement("canvas"); c.width=Math.round(bmp.width*s); c.height=Math.round(bmp.height*s);
-    c.getContext("2d").drawImage(bmp,0,0,c.width,c.height); if(bmp.close) bmp.close();
-    const b=await new Promise(r=>c.toBlob(r,"image/jpeg",0.85));
-    return b?new File([b],"photo.jpg",{type:"image/jpeg"}):f;
-  }catch(e){ return f; }   // not a readable image: send as-is and let the server explain
-}
-
-// ================= SHARE (listings + matching, on the server) =================
-let LISTINGS=[];
-function renderListings(){
-  const mine=MY.get();
-  const li=x=>`<div class="item"><span>${esc(x.name)}<small>${esc(x.area)}</small></span><span style="display:flex;align-items:center;gap:4px"><span class="num">${x.qty}</span>${mine[x.id]?`<button class="plain" type="button" data-del="${x.id}" aria-label="Remove ${esc(x.name)}">✕</button>`:""}</span></div>`;
-  const S=LISTINGS.filter(x=>x.kind==="supply"), D=LISTINGS.filter(x=>x.kind==="demand");
-  $("supplyList").innerHTML=S.length?S.map(li).join(""):`<div class="empty">No supply listed yet.</div>`;
-  $("demandList").innerHTML=D.length?D.map(li).join(""):`<div class="empty">No demand listed yet.</div>`;
-}
-let listBusy=false;
-$("listForm").addEventListener("submit",async e=>{
-  e.preventDefault(); if(listBusy) return;
-  const x={kind:$("lKind").value,area:$("lArea").value,name:$("lName").value.trim().slice(0,60),qty:Math.round(Number($("lQty").value))};
-  if(!x.name){toast("Add a name.");return;}
-  if(!(x.qty>=1&&x.qty<=2000)){toast("Enter a quantity from 1 to 2,000 kL per day.");return;}
-  listBusy=true;
-  try{
-    const r=await api("/listings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(x)});
-    const m=MY.get(); m[r.id]=r.edit_token; MY.set(m);
-    $("lName").value=""; $("lQty").value=""; toast("Listing added and shared with everyone.");
-    await refresh();
-  }catch(err){ toast(err.msg); }
-  finally{ listBusy=false; }
-});
-document.querySelector("#v-share").addEventListener("click",async e=>{
-  const id=e.target.closest("button[data-del]")?.dataset.del; if(!id) return;
-  const m=MY.get();
-  try{ await api("/listings/"+id,{method:"DELETE",headers:{"x-edit-token":m[id]||""}}); delete m[id]; MY.set(m); toast("Listing removed."); await refresh(); }
-  catch(err){ toast(err.msg); }
-});
-$("runMatch").onclick=async()=>{
-  const fresh=Math.max(0,Number($("freshPrice").value)||0);
-  try{
-    const j=await api("/match?fresh_rs_per_kl="+fresh);
-    const m=j.matches;
-    if(!m.length){$("matches").innerHTML=`<div class="empty">Add at least one supply and one demand listing first.</div>`;$("matchSum").textContent="";return;}
-    $("matches").innerHTML=m.map(x=>x.from?`<div class="match"><b>${esc(x.from)} → ${esc(x.to)}</b><span><span class="num">${x.kl_per_day} kL/day</span> · <span class="num">${x.km.toFixed(1)} km</span> ${x.within_5km?'<span class="pill p-ok">within 5 km</span>':'<span class="pill p-warn">over 5 km</span>'}</span></div>`:`<div class="match un"><b>${esc(x.to)}</b><span><span class="num">${x.kl_per_day} kL/day</span> still unmet. Ask BWSSB for treated water from its STPs.</span></div>`).join("");
-    $("matchSum").innerHTML=j.matched_kl_per_day?`Matched <b class="num">${j.matched_kl_per_day} kL/day</b> of fresh water saved. At ${inr(fresh)}/kL for fresh tankers vs ${inr(10)}/kL treated (before transport), buyers save about <b class="num">${inr(j.saving_rs_per_day)}</b> a day.`:"";
-  }catch(err){ toast(err.msg); }
-};
-
-// ---- Early warning from the server's official data file (app/data/signals.json)
-const nf=(x,d=1)=>Number(x).toLocaleString("en-IN",{maximumFractionDigits:d});
-const MON3=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const fdate=iso=>{ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso); return m?`${+m[3]} ${MON3[+m[2]-1]} ${m[1]}`:iso; };
-const lnk=(u,t)=>`<a class="src" href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`;
-async function loadSignals(){
-  let S; try{ S=await api("/signals"); }catch(_){ return; }   // keep the figures already on the page
-  const R=S.rain, D=R.districts, U=D[0], V=S.reservoirs, G=S.groundwater;
-  IMD=D.map(x=>({d:x.name,a:x.actual_mm,n:x.normal_mm})); renderRain(); renderRWH();
-  $("defBig").textContent=(U.departure_pct<0?"−":"+")+Math.abs(U.departure_pct)+"%";
-  $("alertFig").innerHTML=`IMD recorded <b class="num">${nf(U.actual_mm)} mm</b> in ${esc(U.name)}, ${esc(R.period)}, against a normal of <b class="num">${nf(U.normal_mm)} mm</b>.`;
-  $("alertSrc").textContent=`${R.source}, ${fdate(R.as_of)}`; $("alertSrc").href=R.url;
-  $("rainPeriod").textContent=R.period;
-  const L={alert:["Alert","p-crit"],watch:["Watch","p-warn"],normal:["Normal","p-ok"]};
-  const resOK=V.pct>=50, gwBad=G.pumped_vs_recharge>1;
-  $("sigList").innerHTML=
-   `<span class="pill ${L[U.level][1]}">Rain</span><span><b>${L[U.level][0]}.</b> ${D.map(x=>`${esc(x.name)} ${x.departure_pct<0?"−":x.departure_pct>0?"+":""}${Math.abs(x.departure_pct)}%`).join(", ")} vs normal, ${esc(R.period)}. ${lnk(R.url,"IMD")}</span>`+
-   `<span class="pill ${resOK?"p-warn":"p-crit"}">Reservoirs</span><span><b>${resOK?"Holding.":"Low."}</b> Cauvery dams at ${nf(V.gross_tmc,2)} of ${nf(V.capacity_tmc,2)} TMC (${nf(V.pct)}%) on ${fdate(V.as_of)}: ${V.dams.map(x=>`${esc(x.name)} ${nf(x.pct)}%`).join(", ")}. ${lnk(V.url,V.source.split(",")[0])}</span>`+
-   `<span class="pill ${gwBad?"p-crit":"p-ok"}">Groundwater</span><span><b>${gwBad?"Over-used.":"Balanced."}</b> About ${nf(G.pumped_mld,0)} MLD pumped against about ${nf(G.recharge_mld,0)} MLD of natural recharge (${esc(G.as_of)} estimate). ${lnk(G.url,"The Wire / WELL Labs")}</span>`;
-  const bw=S.reading.borewell_areas, cp=S.reading.cauvery_piped_areas;
-  $("readingBox").className="verdict "+(bw==="alert"?"crit":bw==="watch"?"warn":"ok");
-  $("readingText").innerHTML=`<b>Borewell and tanker areas: ${L[bw]?L[bw][0]:esc(bw)}.</b> ${bw==="alert"?"Weak rain on top of over-pumped groundwater. Plan recharge pits and treated-water reuse now.":"Keep monitoring borewell levels."}<br><b>Cauvery-piped areas: ${cp==="lower_near_term_risk"?"lower near-term risk":"watch"}</b>${cp==="lower_near_term_risk"?` while the reservoirs hold ${nf(V.pct,0)}%.`:"."}`;
-}
-loadSignals(); refresh(); setInterval(()=>{ if(!document.hidden) refresh(); },20000);
-
-// ================= AI lab report reading (only when the server has AI switched on) =================
-$("labPhoto").addEventListener("change",async e=>{
-  const f=e.target.files[0]; e.target.value=""; if(!f) return;
-  $("labNote").textContent="AI is reading the report…";
-  const fd=new FormData(); fd.append("photo",await shrink(f,2000));
-  try{
-    const j=await api("/ai/lab-report",{method:"POST",body:fd});
-    let n=0; for(const [k,v] of Object.entries(j.values)){ const inp=$("q-"+k); if(inp){ inp.value=v; QV[k]=v; n++; } }
-    renderQ(); $("labNote").textContent=n?`AI read ${n} values. Check them against the report.`:"AI couldn't find any values. Type them in.";
-  }catch(err){ $("labNote").textContent=err.msg; }
-});
-
-// ================= QUALITY (IS 10500:2012) =================
-// [key, label, unit, acceptable, permissible(null = no relaxation), type]
-const IS=[
- ["pH","pH","",[6.5,8.5],null,"range"],
- ["tds","Total dissolved solids","mg/L",500,2000,"max"],
- ["turb","Turbidity","NTU",1,5,"max"],
- ["hard","Total hardness (as CaCO₃)","mg/L",200,600,"max"],
- ["alk","Total alkalinity","mg/L",200,600,"max"],
- ["ca","Calcium","mg/L",75,200,"max"],
- ["mg","Magnesium","mg/L",30,100,"max"],
- ["cl","Chloride","mg/L",250,1000,"max"],
- ["so4","Sulphate","mg/L",200,400,"max"],
- ["no3","Nitrate","mg/L",45,null,"max"],
- ["f","Fluoride","mg/L",1.0,1.5,"max"],
- ["fe","Iron","mg/L",0.3,null,"max"],
- ["mn","Manganese","mg/L",0.1,0.3,"max"],
- ["nh3","Ammonia","mg/L",0.5,null,"max"],
- ["as","Arsenic","mg/L",0.01,0.05,"max"],
- ["pb","Lead","mg/L",0.01,null,"max"],
- ["tc","Total coliform","MPN/100 mL",0,null,"zero"],
- ["ec","E. coli","MPN/100 mL",0,null,"zero"]
-];
-const QV={};
-$("qBody").innerHTML=IS.map(([k,l,u,a,p,t])=>`<tr><td>${l}${u?` <span class="muted" style="font-size:12px">${u}</span>`:""}</td>
-  <td><input id="q-${k}" data-q="${k}" type="number" step="any" min="0" inputmode="decimal" aria-label="${l}"></td>
-  <td class="num" style="font-size:12.5px">${t==="range"?`${a[0]}–${a[1]}`:t==="zero"?"not detectable":`${a} / ${p??"no relaxation"}`}</td>
-  <td id="qs-${k}"></td></tr>`).join("");
-function judge([k,l,u,a,p,t],v){
-  if(v==null||v==="")return null;
-  if(!isFinite(v)||v<0||(k==="pH"&&v>14))return"bad";
-  if(t==="range")return v>=a[0]&&v<=a[1]?"ok":"crit";
-  if(t==="zero")return v>0?"crit":"ok";
-  if(v<=a)return"ok"; if(p!=null&&v<=p)return"warn"; return"crit";
-}
-function renderQ(){
-  let n=0,bad=[],warn=[],invalid=[];
-  for(const row of IS){const v=QV[row[0]];const j=judge(row,v);const cell=$("qs-"+row[0]);
-    if(j==null){cell.innerHTML="";continue;}
-    if(j==="bad"){cell.innerHTML='<span class="pill p-idle">Check value</span>';invalid.push(row[1]);continue;} n++;
-    cell.innerHTML=j==="ok"?'<span class="pill p-ok">OK</span>':j==="warn"?'<span class="pill p-warn">High</span>':'<span class="pill p-crit">Unsafe</span>';
-    if(j==="crit")bad.push(row[1]); if(j==="warn")warn.push(row[1]);}
-  const inv=invalid.length?`<p class="muted" style="font-size:13px;margin-top:6px">Not counted, please check: ${esc(invalid.join(", "))}. Values can't be negative${invalid.includes("pH")?" and pH must be 0–14":""}.</p>`:"";
-  $("qVerdict").innerHTML=(!n?"":bad.length?`<div class="verdict crit"><b>Not safe to drink as it is</b><span>Outside the IS 10500 limit: ${esc(bad.join(", "))}.${bad.some(x=>/coliform|E\. coli/.test(x))?" Bacteria were found: boil the water or use a UV purifier, and get the source checked.":""} Use another source or proper treatment, and retest.</span></div>`
-    :warn.length?`<div class="verdict warn"><b>Drinkable only if there's no better source</b><span>Above the acceptable limit but within the permissible limit: ${esc(warn.join(", "))}.</span></div>`
-    :`<div class="verdict ok"><b>Within IS 10500 limits</b><span>All ${n} values you entered are within the acceptable limits.</span></div>`)+inv;
-}
-$("qBody").addEventListener("input",e=>{const k=e.target.dataset.q;if(!k)return;QV[k]=e.target.value===""?null:Number(e.target.value);renderQ();});
-// ================= RECHARGE (BWSSB rules + rainfall normals) =================
-// Monthly average rainfall, Bengaluru, 1991–2021 (climate-data.org)
-const MON=[["J",4],["F",7],["M",16],["A",45],["M",131],["J",126],["J",134],["A",137],["S",125],["O",147],["N",65],["D",23]];
-const ANNUAL=960, RUNOFF=0.8, SQFT_TO_SQM=0.092903;
-function renderRWH(){
-  const pos=id=>Math.max(0,Number($(id).value)||0);
-  const L=pos("sL"),W=pos("sW"),site=L*W,age=$("sAge").value,roof=pos("roof"),paved=pos("paved"),bill=pos("bill");
-  if(!site){ $("rwhOut").innerHTML=`<div class="verdict warn"><b>Enter your site length and width</b><span>Use feet, for example 30 × 40.</span></div>`; return; }
-  const threshold=age==="new"?1200:2400, must=site>=threshold;
-  const storage=roof*20+paved*10;
-  const potential=roof*ANNUAL/1000*RUNOFF; // kL per year
-  const lostThisYear=roof*Math.max(0,IMD[0].n-IMD[0].a)/1000*RUNOFF, lostPct=Math.round((IMD[0].n-IMD[0].a)/IMD[0].n*100);
-  const penalty=bill*0.5*3+bill*9;
-  const mx=Math.max(...MON.map(m=>m[1]));
-  $("rwhOut").innerHTML=`
-  <div class="verdict ${must?"warn":"ok"}"><b>${must?"RWH is mandatory for your site":"RWH is not mandatory for your site"}</b>
-    <span>Your site is <span class="num">${site.toLocaleString("en-IN")} sq ft</span>. BWSSB requires RWH for ${age==="new"?"buildings from 2009 on sites of 30×40 ft (1,200 sq ft) or more":"older buildings on sites of 60×40 ft (2,400 sq ft) or more"}.${must?"":" It's still worth doing."}</span></div>
-  <div class="out">
-    <div class="fact"><b class="num">${storage.toLocaleString("en-IN")} L</b><span>minimum storage BWSSB requires: 20 L per sq m of roof + 10 L per sq m of paved area</span></div>
-    <div class="fact"><b class="num">${Math.round(potential).toLocaleString("en-IN")} kL</b><span>water your roof can collect in an average year</span></div>
-    ${must&&bill?`<div class="fact"><b class="num">${inr(penalty)}</b><span>penalty you avoid in the first year: 50% of the bill for 3 months, then 100%</span></div>`:""}
-    <div class="fact"><b class="num">${Math.round(potential/0.135/365*10)/10}</b><span>people it could supply for a whole year at 135 L per person per day (CPHEEO urban norm)</span></div>
-  </div>
-  <div class="panel">
-    <div class="row between"><h3>What your roof collects each month</h3><span class="label">kL</span></div>
-    <div class="months">${MON.map(([m,mm])=>{const kl=roof*mm/1000*RUNOFF;return `<div class="c"><em class="num">${kl>=1?Math.round(kl):kl.toFixed(1)}</em><i style="height:${mm/mx*85}%"></i><span>${m}</span></div>`;}).join("")}</div>
-    <p style="font-size:13.5px">This monsoon's ${lostPct}% shortfall means your roof has collected about <b class="num">${Math.round(lostThisYear).toLocaleString("en-IN")} kL</b> less than normal since June.</p>
-    <p class="src">Rainfall: average monthly totals 1991–2021 (<a href="https://en.climate-data.org/asia/india/karnataka/bengaluru-4562/" target="_blank" rel="noopener">climate-data.org</a>); this season from <a href="https://mausam.imd.gov.in/bengaluru/mcdata/cum_stats.pdf" target="_blank" rel="noopener">IMD</a>. Assumes 80% of roof rain is captured (a common planning figure for concrete roofs). BWSSB rules: <a href="https://www.euroguardhysquare.com/news-blogs/bwssb-rainwater-harvesting-guidelines" target="_blank" rel="noopener">RWH guide, Jan 2026</a>.</p>
-  </div>`;
-}
-$("rwhForm").addEventListener("input",renderRWH);
-
-// ================= Shell =================
-document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
-  document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
-  document.querySelectorAll("section.view").forEach(s=>s.hidden=s.id!=="v-"+b.dataset.v); window.scrollTo(0,0);
-}));
-renderReports(); renderListings(); renderQ(); renderRWH();
-</script>
+<script src="/static/vendor/leaflet/leaflet.js"></script>
+<script src="/static/js/lib.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
