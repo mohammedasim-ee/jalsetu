@@ -75,7 +75,8 @@ def make_cls_models():
 
 def classification(years):
     all_years = [y for y in years if y - 1 in years]
-    folds = [(s, min(s + 9, 2015)) for s in range(1931, 2016, 10)]   # 9 folds, expanding training window (>= 29 training years)
+    last = max(all_years)
+    folds = [(s, min(s + 9, last)) for s in range(1931, last + 1, 10)]   # decade folds, expanding training window (>= 29 training years)
     preds = {k: {"y": [], "pred": [], "prob": []} for k in ["majority_class", "rule_jun_jul_le_-20", *make_cls_models()]}
     fold_log = []
     for lo, hi in folds:
@@ -191,7 +192,7 @@ def main():
     a = anomalies(years)
     stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     meta = {"version": VERSION, "trained_at": stamp, "data_sha256": data_hash(),
-            "data": "IMD South Interior Karnataka monthly rainfall 1901–2015 (data/processed/rainfall_monthly.csv)"}
+            "data": f"IMD South Interior Karnataka monthly rainfall {min(years)}–{max(years)} (data/processed/rainfall_monthly.csv)"}
 
     # exports used by the server (pure Python)
     cls_art = export.classifier(c["selected"], c["final_model"], c["final_scaler"], F.CLS_FEATURES, c["climatology_all_years"], meta)

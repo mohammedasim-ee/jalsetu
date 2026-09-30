@@ -16,7 +16,7 @@ Code: `app/rules.py` (`harvest_litres`, `rwh_plan`). API: `POST /api/rwh`. Tests
 | Option | Source | Status |
 | --- | --- | --- |
 | Bengaluru estimate (default) | climate-data.org, 1991–2021 monthly averages | **Modelled** estimate for the city; not IMD |
-| IMD South Interior Karnataka mean | IMD sub-divisional data 1901–2015 (JalSetu pipeline) | **Official**, but regional: it peaks in July, unlike Bengaluru |
+| IMD South Interior Karnataka mean | IMD sub-divisional data 1901–2017 (JalSetu pipeline) | **Official**, but regional: it peaks in July, unlike Bengaluru |
 | Annual override | User enters an annual total in mm | The monthly pattern of the chosen series is scaled to that total |
 
 ## BWSSB rules applied

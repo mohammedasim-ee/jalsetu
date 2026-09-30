@@ -41,17 +41,17 @@
   <!-- ================= RAIN + ML ================= -->
   <section class="view" id="v-rain" hidden aria-label="Rainfall and models">
     <div class="panel"><h2>This monsoon (1 Jun – 28 Sep 2026)</h2><div class="rainbars" id="rainbars"></div><p class="src" id="rainSrc"></p></div>
-    <div class="panel"><div class="row between"><h2>115 years of monsoon rain</h2><span class="label">South Interior Karnataka · IMD</span></div>
+    <div class="panel"><div class="row between"><h2><span id="nYears">117</span> years of monsoon rain</h2><span class="label">South Interior Karnataka · IMD</span></div>
       <div id="seasonChart"></div>
-      <div class="legend"><span><i style="background:var(--rain)"></i>Jun–Sep total</span><span><i style="background:var(--crit)"></i>Deficient season (≤ −20%)</span><span><i style="background:var(--ink)"></i>10-year moving average</span><span><i style="background:var(--muted)"></i>1901–2015 mean</span></div>
+      <div class="legend"><span><i style="background:var(--rain)"></i>Jun–Sep total</span><span><i style="background:var(--crit)"></i>Deficient season (≤ −20%)</span><span><i style="background:var(--ink)"></i>10-year moving average</span><span><i style="background:var(--muted)"></i><span id="meanYears">1901–2017</span> mean</span></div>
       <p id="trendText" style="font-size:14px"></p>
       <p class="src" id="histSrc"></p>
     </div>
     <div class="panel"><div class="row between"><h2>Monthly anomaly</h2><label class="f" style="flex-direction:row;align-items:center;gap:6px">Year <select id="anYear" style="width:auto"></select></label></div>
-      <div id="anomChart"></div><p class="src">Anomaly = observed − expected, where expected is the 1901–2015 mean for that month.</p></div>
+      <div id="anomChart"></div><p class="src">Anomaly = observed − expected, where expected is the <span id="baseYears">1901–2017</span> mean for that month.</p></div>
 
     <div class="panel"><h2>ML: will this monsoon end deficient?</h2>
-      <p class="muted" style="font-size:14px">A Random Forest trained on 1901–2015 gives, at the end of July, a risk score that the June–September season ends 20% or more below normal. Try a real past year, or type your own departures.</p>
+      <p class="muted" style="font-size:14px">A Random Forest trained on <span id="trainYears">1901–2017</span> IMD data gives, at the end of July, a risk score that the June–September season ends 20% or more below normal. Try a real past year, or type your own departures.</p>
       <div class="grid2">
         <label class="f">Load a past year<select id="mlYear"><option value="">Choose…</option></select></label>
         <div id="mlActual" class="muted" style="font-size:13px;align-self:end"></div>
@@ -189,7 +189,7 @@
           <label class="f">Paved open area (sq m)<input id="paved" type="number" min="0" value="30" inputmode="numeric"></label>
           <label class="f">Runoff coefficient<input id="runoff" type="number" min="0.05" max="1" step="0.05" value="0.8"></label>
           <label class="f">Collection efficiency<input id="eff" type="number" min="0.05" max="1" step="0.05" value="1"></label>
-          <label class="f">Rainfall data<select id="rseries"><option value="bengaluru_estimate">Bengaluru estimate (climate-data.org, modelled)</option><option value="imd_sik_1901_2015">IMD South Interior Karnataka mean (official, regional)</option></select></label>
+          <label class="f">Rainfall data<select id="rseries"><option value="bengaluru_estimate">Bengaluru estimate (climate-data.org, modelled)</option><option value="imd_sik">IMD South Interior Karnataka mean (official, regional)</option></select></label>
           <label class="f">Annual rainfall override (mm, optional)<input id="annual" type="number" min="0" max="6000"></label>
         </div>
       </form>

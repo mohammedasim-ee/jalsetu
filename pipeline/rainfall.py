@@ -1,6 +1,6 @@
 """Rainfall stage: validate, clean and engineer features from IMD sub-divisional monthly rainfall.
 
-Input:  data/raw/imd_subdivision_monthly_rainfall_1901_2015.csv (IMD via data.gov.in)
+Input:  data/raw/imd_subdivision_monthly_rainfall_1901_2017.csv (IMD via data.gov.in)
 Output: rainfall_monthly.csv, rainfall_analysis.json
 """
 from __future__ import annotations

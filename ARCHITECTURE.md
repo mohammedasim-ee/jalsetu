@@ -3,7 +3,7 @@
 ```mermaid
 flowchart TD
   subgraph Sources["Data sources (see DATA_SOURCES.md)"]
-    IMD["IMD rainfall 1901–2015 (data.gov.in)"]
+    IMD["IMD rainfall 1901–2017 (data.gov.in)"]
     BUL["Official bulletins, entered by hand<br/>IMD 2026, reservoirs, CGWB, KSPCB, BWSSB"]
     GIS["BBMP wards (KGIS/DataMeet), lake locations"]
     USERS["Citizens and organizations<br/>(reports, offers, requests)"]

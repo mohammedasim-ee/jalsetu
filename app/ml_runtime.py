@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import math
+import struct
 from functools import cache
 from pathlib import Path
 
@@ -32,7 +33,13 @@ def _p1(value) -> float:
     return value[1] / s if s else 0.0
 
 
+def _f32(v: float) -> float:
+    """scikit-learn compares features as float32 inside trees; do the same so results match exactly."""
+    return struct.unpack("f", struct.pack("f", v))[0]
+
+
 def _tree_path(t: dict, x: list[float]) -> list[int]:
+    x = [_f32(v) for v in x]
     n, path = 0, [0]
     while t["left"][n] != -1:
         n = t["left"][n] if x[t["feature"][n]] <= t["threshold"][n] else t["right"][n]

@@ -23,12 +23,12 @@
 
 ## 1:20 Rain + ML: real data, real evaluation (80 s)
 
-1. Point at the 115-year chart.
-   > "IMD data 1901–2015. Red bars are deficient monsoons. The trend is actually increasing, which is statistically significant, p = 0.0002."
+1. Point at the 117-year chart.
+   > "Official IMD data 1901–2017. Red bars are deficient monsoons, including the 2016 drought. The trend is actually increasing, which is statistically significant, p = 0.0006."
 2. **Load a past year: 2002** → **Run the model**.
-   > "At the end of July, the Random Forest gives a high deficient-monsoon risk score, and here is why: the June–July shortfall contributes most. The contributions add up exactly to the score. 2002 really was deficient, −34%, though that year was in the training data."
+   > "At the end of July, the Random Forest gives a high deficient-monsoon risk score, and here is why: the June–July shortfall contributes most. The contributions add up exactly to the score. 2002 really was deficient, about −33%, though that year was in the training data."
 3. Scroll to **How accurate are the models?**
-   > "Honest result: on 85 test seasons the model catches 4 of 5 deficient monsoons, but it does not beat a simple rule on F1. So the warning engine uses the rule, and the model is shown as a ranking score. And for next-month rainfall, no model beat the long-term average, so JalSetu uses the average and says so."
+   > "Honest result: on 87 test seasons the model catches 4 of 6 deficient monsoons, and it does not beat a simple rule on F1. It even scores the 2016 drought just under its cut-off. So the warning engine uses the rule, and the model is shown as a ranking score. And for next-month rainfall, no model beat the long-term average, so JalSetu uses the average and says so."
 
 ## 2:40 Map (30 s)
 
@@ -54,7 +54,7 @@
 
 ## 4:40 Close (20 s)
 
-> "Everything I showed is tested: 108 automated Python tests, including a browser test that runs this exact journey, plus 9 frontend tests. The risk methodology, model report, data sources and security review are all in the repository. Limitations are documented too: regional rainfall data ends in 2015, some figures come from news reports of official data, and there is no ward-level risk."
+> "Everything I showed is tested: 112 automated Python tests, including a browser test that runs this exact journey, plus 9 frontend tests. The risk methodology, model report, data sources and security review are all in the repository. Limitations are documented too: regional rainfall data ends in 2015, some figures come from news reports of official data, and there is no ward-level risk."
 
 ## If something fails
 

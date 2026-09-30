@@ -153,9 +153,9 @@ RAIN_SERIES: dict[str, dict[str, Any]] = {
         "mm": [4, 7, 16, 45, 131, 126, 134, 137, 125, 147, 65, 23],
         "label": "Bengaluru city, 1991–2021 monthly averages (climate-data.org; modelled estimate, not IMD)",
         "status": "modelled", "url": "https://en.climate-data.org/asia/india/karnataka/bengaluru-4562/"},
-    "imd_sik_1901_2015": {
+    "imd_sik": {
         "mm": None,   # filled from data/processed/rainfall_analysis.json at first use
-        "label": "IMD South Interior Karnataka sub-division, 1901–2015 mean (official; regional, not city)",
+        "label": "IMD South Interior Karnataka sub-division, 1901–2017 mean (official; regional, not city)",
         "status": "historical", "url": "https://www.data.gov.in/resource/sub-divisional-monthly-rainfall-1901-2017"},
 }
 RUNOFF = 0.8  # default runoff coefficient: a commonly used planning figure for concrete roofs (user-adjustable)

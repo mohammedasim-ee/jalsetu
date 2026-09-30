@@ -13,7 +13,7 @@ ART = Path(__file__).resolve().parent.parent / "artifacts"
 
 def test_load_years_complete_and_valid():
     years = F.load_years()
-    assert min(years) == 1901 and max(years) == 2015 and len(years) == 115
+    assert min(years) == 1901 and max(years) == 2017 and len(years) == 117
     assert all(len(v) == 12 and min(v) >= 0 for v in years.values())
 
 

@@ -36,7 +36,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) (diagram and request flow).
 | Module | What works | Data status |
 | --- | --- | --- |
 | Overview | Risk score 0–100 with six weighted, explained components; data freshness; early warnings with triggers and actions; 8 indicator cards with source, period, dates, status; risk history | Official/published (historical) + live DB |
-| Rainfall analytics | 115-year monsoon chart, anomalies (mm and %), IMD categories, 10-year moving average, OLS trend with CI, Mann-Kendall test, monthly anomaly chart per year | IMD 1901–2015 (historical, regional) |
+| Rainfall analytics | 117-year (1901–2017) monsoon chart, anomalies (mm and %), IMD categories, 10-year moving average, OLS trend with CI, Mann-Kendall test, monthly anomaly chart per year | IMD 1901–2017 (historical, regional) |
 | ML | Deficient-monsoon classifier with per-prediction explanation; forecaster (climatology won); Isolation Forest unusual-month detector; full metrics shown in the app | Trained on IMD data; see MODEL_REPORT.md |
 | Map (GIS) | 243 BBMP wards, lakes, reports, treated-water offers and requests; layer toggles, category and status filters, ward click panel, ward shading by report count | KGIS/DataMeet, Wikipedia. Ward risk is shown as **unavailable**, not faked |
 | Reservoirs | Latest per reservoir, % full, trend when two or more readings exist, admin ingestion with source | News report of official figures |
@@ -147,7 +147,7 @@ python -m mypy
 ```
 
 Latest run (30 Sep 2026):
-- **pytest:** 108 passed (backend, pipeline, ML, and 6 browser end-to-end tests), on both SQLite and PostgreSQL 16 for the non-browser suites.
+- **pytest:** 112 passed (backend, pipeline, ML, and 6 browser end-to-end tests), on both SQLite and PostgreSQL 16 for the non-browser suites.
 - **node:** 9 passed.
 - **ruff and mypy:** clean.
 
@@ -164,7 +164,7 @@ Also works on Render (`render.yaml`) or Docker (`Dockerfile`).
 
 - **No live feeds.** Official figures are entered by hand; there are no live government feeds and no IoT sensors.
 - **Secondary sources.** Some official figures come from news reports of them: reservoir levels, the CGWB stage, the KSPCB summary.
-- **Historical rainfall.** It is regional (South Interior Karnataka) and ends in 2015; the models cannot see 2016–2026.
+- **Historical rainfall.** It is regional (South Interior Karnataka) and the official series available ends in 2017; the models cannot see 2018–2026.
 - **ML value.** The classifier doesn't beat a simple rule on F1, and its probabilities are uncalibrated; next-month forecasting has no skill over the average. Both are stated in the app.
 - **No ward risk.** No ward-level risk, rainfall or groundwater data is public, so none is shown.
 - **Limited lake data.** Only 7 lakes have locations, and none has a per-lake quality series yet.
@@ -177,7 +177,7 @@ Also works on Render (`render.yaml`) or Docker (`Dockerfile`).
 ## 18. Future work
 
 - **Better data:** KSNDMC reservoir bulletins and IMD daily district rainfall, ingested automatically where their terms allow; CGWB observation wells mapped to wards (which would make a ward risk layer possible); KSPCB monthly lake reports per lake.
-- **Better models:** retrain on data after 2015 and probability calibration.
+- **Better models:** retrain on official data after 2017 (IMD) and probability calibration.
 - **Accounts:** httpOnly cookie sessions, organization verification, and Kannada language support.
 
 ---

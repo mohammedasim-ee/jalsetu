@@ -6,7 +6,7 @@ from __future__ import annotations
 def _tree(t) -> dict:
     tr = t.tree_
     return {"left": tr.children_left.tolist(), "right": tr.children_right.tolist(), "feature": tr.feature.tolist(),
-            "threshold": [round(float(x), 10) for x in tr.threshold], "value": [v[0] for v in tr.value.tolist()],
+            "threshold": [float(x) for x in tr.threshold], "value": [v[0] for v in tr.value.tolist()],
             "n_node_samples": tr.n_node_samples.tolist()}
 
 

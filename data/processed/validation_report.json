@@ -1,9 +1,9 @@
 {
  "rainfall": {
-  "file": "imd_subdivision_monthly_rainfall_1901_2015.csv",
+  "file": "imd_subdivision_monthly_rainfall_1901_2017.csv",
   "subdivision": "SOUTH INTERIOR KARNATAKA",
-  "rows_read": 115,
-  "rows_kept": 115,
+  "rows_read": 117,
+  "rows_kept": 117,
   "missing_values": 0,
   "negative_values": 0,
   "annual_sum_mismatch": 0,
@@ -12,7 +12,7 @@
   "issues": [],
   "years": [
    1901,
-   2015
+   2017
   ]
  },
  "wards": {

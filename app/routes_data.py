@@ -64,16 +64,17 @@ def rainfall():
                            "last_10_seasons": seasons[-10:],
                            "driest_seasons": sorted(seasons, key=lambda s: s["jjas_departure_pct"])[:5],
                            "wettest_seasons": sorted(seasons, key=lambda s: -s["jjas_departure_pct"])[:5]},
-            "formula": {"anomaly_mm": "observed − expected (1901–2015 mean for that month or season)",
+            "formula": {"anomaly_mm": f"observed − expected ({a['years'][0]}–{a['years'][1]} mean for that month or season)",
                         "anomaly_pct": "(observed − expected) ÷ expected × 100"}}
 
 
 @router.get("/rainfall/history")
-def rainfall_history(start: int = Query(1901, ge=1901, le=2015), end: int = Query(2015, ge=1901, le=2015),
+def rainfall_history(start: int = Query(1901, ge=1901, le=2100), end: int = Query(2100, ge=1901, le=2100),
                      monthly: bool = False):
     if start > end:
         raise HTTPException(422, "start must be before end")
     a = ds.processed("rainfall_analysis.json")
+    end = min(end, a["years"][1])
     out = {"seasons": [s for s in a["seasons"] if start <= s["year"] <= end], "source": a["source"]}
     if monthly:
         out["monthly"] = [m for m in ds.monthly_rainfall() if start <= m["year"] <= end]
@@ -191,14 +192,15 @@ class RwhIn(BaseModel):
     monthly_bill_rs: float = Field(0, ge=0, le=10000000)
     runoff_coefficient: float = Field(rules.RUNOFF, ge=0.05, le=1)
     collection_efficiency: float = Field(1.0, ge=0.05, le=1)
-    rainfall_series: Literal["bengaluru_estimate", "imd_sik_1901_2015"] = "bengaluru_estimate"
+    rainfall_series: Literal["bengaluru_estimate", "imd_sik", "imd_sik_1901_2015"] = "bengaluru_estimate"
     annual_rain_mm: Optional[float] = Field(None, ge=0, le=6000)
 
 
 @router.post("/rwh")
 def rwh(body: RwhIn):
+    series = "imd_sik" if body.rainfall_series == "imd_sik_1901_2015" else body.rainfall_series   # v2.0 name still accepted
     return rules.rwh_plan(body.length_ft, body.width_ft, body.built, body.roof_sqm, body.paved_sqm, body.monthly_bill_rs,
-                          body.runoff_coefficient, body.collection_efficiency, body.rainfall_series, body.annual_rain_mm)
+                          body.runoff_coefficient, body.collection_efficiency, series, body.annual_rain_mm)
 
 
 # ------------------------------------------------------------------ forecast + ML
@@ -221,7 +223,7 @@ def forecast(month: int = Query(..., ge=1, le=12)):
 
 
 @router.get("/forecast/backtest")
-def forecast_backtest(start: int = Query(2011, ge=1996, le=2015)):
+def forecast_backtest(start: int = Query(2011, ge=1996, le=2100)):
     rows = [r for r in json.loads((ml_runtime.ART / "forecast_backtest.json").read_text()) if r["year"] >= start]
     return {"rows": rows, "note": "Out-of-sample: models were trained on 1902–1995 only."}
 
@@ -240,7 +242,7 @@ def ml_predict(body: SeasonIn, request: Request):
     out = ml_runtime.predict_season(x)
     out["generated_at"] = time.time()
     out["task"] = ml_runtime.load("season_classifier.json")["task"]
-    out["region"] = "South Interior Karnataka (IMD sub-division); departures are relative to the 1901–2015 monthly mean"
+    out["region"] = f"South Interior Karnataka (IMD sub-division); departures are relative to the {ds.processed('rainfall_analysis.json')['baseline']}"
     _log_prediction(out["model"], body.model_dump(), {"p": out["probability_deficient"]})
     jlog("ml_predict", model=out["model"]["name"], p=out["probability_deficient"])
     return out

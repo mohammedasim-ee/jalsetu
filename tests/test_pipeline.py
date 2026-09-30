@@ -77,5 +77,5 @@ def test_pipeline_is_reproducible():
     res = run_pipeline.main()
     assert res["manifest"]["outputs"] == before            # same raw data -> byte-identical outputs
     v = res["validation"]
-    assert v["rainfall"]["rows_kept"] == 115 and v["wards"]["features_kept"] == 243 and v["lakes"]["rows_kept"] == 7
+    assert v["rainfall"]["rows_kept"] == 117 and v["wards"]["features_kept"] == 243 and v["lakes"]["rows_kept"] == 7
     assert 700 < v["wards"]["total_area_km2"] < 720        # BBMP is ~712 km²

@@ -20,7 +20,8 @@ from app import rules  # noqa: E402
 from pipeline import gis, indicators, rainfall  # noqa: E402
 
 RAW, OUT = ROOT / "data" / "raw", ROOT / "data" / "processed"
-PIPELINE_VERSION = "2.0.0"
+PIPELINE_VERSION = "2.1.0"
+RAINFALL_FILE = "imd_subdivision_monthly_rainfall_1901_2017.csv"
 
 
 def sha256(p: Path) -> str:
@@ -40,14 +41,15 @@ def main() -> dict:
     validation = {}
 
     # 1. rainfall
-    rows, rep = rainfall.load_and_validate(RAW / "imd_subdivision_monthly_rainfall_1901_2015.csv")
+    rows, rep = rainfall.load_and_validate(RAW / RAINFALL_FILE)
     if len(rows) < 100:
         raise SystemExit(f"Rainfall validation failed: only {len(rows)} usable years")
     monthly, analysis = rainfall.build_features(rows)
-    analysis["source"] = {"name": "IMD sub-divisional monthly rainfall 1901–2015 (Open Government Data Platform India)",
+    y0, y1 = rows[0]["year"], rows[-1]["year"]
+    analysis["source"] = {"name": f"IMD sub-divisional monthly rainfall {y0}–{y1} (Open Government Data Platform India)",
                           "dataset_page": "https://www.data.gov.in/resource/sub-divisional-monthly-rainfall-1901-2017",
-                          "copy_used": "https://github.com/chandanverma07/DataSets/blob/master/rainfall%20in%20india%201901-2015.csv",
-                          "status": "historical", "limitations": "Sub-division average, not Bengaluru city; series ends in 2015."}
+                          "copy_used": "https://github.com/dcsavinod/weather-and-rainfall-data-from-1901-to-2022/blob/main/Rainfall_State_Analysis_India_1901_2017.csv",
+                          "status": "historical", "limitations": f"Sub-division average, not Bengaluru city; the official series available to JalSetu ends in {y1}. Its {y0}–2015 values are identical to the earlier 1901–2015 release (checked value by value)."}
     rainfall.write_monthly_csv(monthly, OUT / "rainfall_monthly.csv")
     dump(analysis, "rainfall_analysis.json")
     validation["rainfall"] = rep

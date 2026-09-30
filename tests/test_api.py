@@ -37,12 +37,14 @@ def test_every_data_endpoint_has_sources(c, path):
 def test_rainfall_analysis(c):
     r = c.get("/api/rainfall").json()
     h = r["historical"]
-    assert h["years"] == [1901, 2015] and len(h["climatology"]) == 12
+    assert h["years"] == [1901, 2017] and len(h["climatology"]) == 12
     assert r["current_season"]["districts"][0]["departure_pct"] == -48.4
     assert r["current_season"]["districts"][0]["anomaly_mm"] == -213.9
     assert h["mann_kendall_jjas"]["p_value"] < 0.05
-    hist = c.get("/api/rainfall/history?start=2010&end=2015&monthly=true").json()
-    assert [s["year"] for s in hist["seasons"]] == list(range(2010, 2016)) and len(hist["monthly"]) == 72
+    hist = c.get("/api/rainfall/history?start=2012&end=2017&monthly=true").json()
+    assert [s["year"] for s in hist["seasons"]] == list(range(2012, 2018)) and len(hist["monthly"]) == 72
+    seasons = {s["year"]: s for s in c.get("/api/rainfall/history?start=2016").json()["seasons"]}
+    assert seasons[2016]["jjas_mm"] == 517.4 and seasons[2016]["jjas_category"] == "Deficient" and max(seasons) == 2017
     assert c.get("/api/rainfall/history?start=2015&end=2010").status_code == 422
 
 
@@ -131,8 +133,10 @@ def test_rwh_formula_units_and_fine(c):
     assert r["yearly_harvest_kl"] == pytest.approx(72.0, abs=0.1) and r["annual_rain_mm"] == 1000
     assert r["first_year_penalty_avoided_rs"] == 8400 and r["site_sqm"] == 223.0
     assert rules.harvest_litres(1, 1, 1, 1) == 1       # 1 mm on 1 m² = 1 litre
-    imd = c.post("/api/rwh", json={"length_ft": 10, "width_ft": 10, "roof_sqm": 100, "rainfall_series": "imd_sik_1901_2015"}).json()
-    assert imd["rainfall_source"]["status"] == "historical" and imd["annual_rain_mm"] == pytest.approx(1040.4, abs=0.2)
+    imd = c.post("/api/rwh", json={"length_ft": 10, "width_ft": 10, "roof_sqm": 100, "rainfall_series": "imd_sik"}).json()
+    assert imd["rainfall_source"]["status"] == "historical" and imd["annual_rain_mm"] == pytest.approx(1037.5, abs=0.2)
+    old_name = c.post("/api/rwh", json={"length_ft": 10, "width_ft": 10, "roof_sqm": 100, "rainfall_series": "imd_sik_1901_2015"}).json()
+    assert old_name["annual_rain_mm"] == imd["annual_rain_mm"]           # v2.0 option name still accepted
     assert c.post("/api/rwh", json={"length_ft": -1, "width_ft": 10}).status_code == 422
     assert c.post("/api/rwh", json={"length_ft": 1, "width_ft": 1, "runoff_coefficient": 1.5}).status_code == 422
 
@@ -208,7 +212,7 @@ def test_forecast_and_models(c):
     f = c.get("/api/forecast?month=10").json()
     assert f["forecast_mm"] > 0 and f["evaluation"]["selected"] == f["model"]["name"]
     assert c.get("/api/forecast?month=13").status_code == 422
-    assert len(c.get("/api/forecast/backtest?start=2015").json()["rows"]) == 12
+    assert len(c.get("/api/forecast/backtest?start=2017").json()["rows"]) == 12
     m = c.get("/api/ml/models").json()
     assert m["classification"]["cv_results"]["random_forest"]["confusion_matrix"]
 

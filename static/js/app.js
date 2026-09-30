@@ -142,7 +142,7 @@ async function renderIndicatorCards(ind, ctx) {
     card("Demand pressure", `${nf(ds.gap_share * 100, 0)}% gap`, `Demand ${nf(ds.demand_mld)} MLD (${esc(ds.demand_as_of)}) vs supply ${nf(ds.supply_mld)} MLD (${esc(fdate(ds.supply_as_of))}). ${esc(ds.note)}`, { source: ds.supply_source + "; " + ds.demand_source, url: ds.supply_url, as_of: ds.supply_as_of, retrieved: ds.retrieved, status: ds.status }),
     card("Lake quality", `${lq.lakes_class_a_to_c} of ${lq.lakes_monitored}`, `lakes met KSPCB class A–C (${esc(lq.period)}); about ${nf(lq.share_class_e_avg * 100)}% were in class E, the worst.`, lq),
     card("Reuse potential", offerKl === null ? "–" : `${nf(offerKl)} kL/day`, `Treated water currently offered on the JalSetu exchange (excluding demo rows). Citywide, ${nf(ind.sewage.untreated_mld)} of ${nf(ind.sewage.generated_mld)} MLD of sewage is left untreated.`, ind.sewage),
-    card("Forecast", fc ? `${nf(fc.forecast_mm, 0)} mm` : "–", fc ? `Expected ${MON3[fc.month - 1]} rainfall, South Interior Karnataka. ${esc(fc.method)}` : "Forecast unavailable.", { source: fc ? `Model: ${fc.model.name} v${fc.model.version}, trained ${fdate(fc.model.trained_at.slice(0, 10))} on IMD 1901–2015` : "", status: "modelled" }),
+    card("Forecast", fc ? `${nf(fc.forecast_mm, 0)} mm` : "–", fc ? `Expected ${MON3[fc.month - 1]} rainfall, South Interior Karnataka. ${esc(fc.method)}` : "Forecast unavailable.", { source: fc ? `Model: ${fc.model.name} v${fc.model.version}, trained ${fdate(fc.model.trained_at.slice(0, 10))} on IMD sub-divisional data` : "", status: "modelled" }),
   ];
   $("indCards").innerHTML = cards.join("");
 }
@@ -179,9 +179,11 @@ async function loadRain() {
   }).join("");
   $("rainSrc").innerHTML = provHtml(cur);
   const H = S.rain.historical;
+  const span = `${H.years[0]}–${H.years[1]}`;
+  $("nYears").textContent = H.years[1] - H.years[0] + 1; $("baseYears").textContent = span; $("trainYears").textContent = span; $("meanYears").textContent = span;
   $("seasonChart").innerHTML = seasonChart(S.seasons, H.jjas_mean_mm);
   const mk = H.mann_kendall_jjas, tr = H.trend_jjas;
-  $("trendText").innerHTML = `Monsoon (Jun–Sep) mean: <b class="num">${nf(H.jjas_mean_mm, 0)} mm</b>. Linear trend <b class="num">${signed(tr.slope_per_decade, 1)} mm per decade</b> (95% CI ${nf(tr.ci95_per_decade[0], 1)} to ${nf(tr.ci95_per_decade[1], 1)}); Mann-Kendall test: ${esc(mk.trend)} (p = ${mk.p_value}). Seasons: ${Object.entries(H.jjas_category_counts).map(([k, v]) => `${esc(k)} ${v}`).join(", ")}. This regional series ends in 2015 and cannot show the 2026 season.`;
+  $("trendText").innerHTML = `Monsoon (Jun–Sep) mean: <b class="num">${nf(H.jjas_mean_mm, 0)} mm</b>. Linear trend <b class="num">${signed(tr.slope_per_decade, 1)} mm per decade</b> (95% CI ${nf(tr.ci95_per_decade[0], 1)} to ${nf(tr.ci95_per_decade[1], 1)}); Mann-Kendall test: ${esc(mk.trend)} (p = ${mk.p_value}). Seasons: ${Object.entries(H.jjas_category_counts).map(([k, v]) => `${esc(k)} ${v}`).join(", ")}. This official regional series is available to JalSetu only up to ${H.years[1]}; the 2026 season is shown at the top of this tab from IMD district bulletins, which are a different series.`;
   $("histSrc").innerHTML = `Source: <a href="${esc(H.source.dataset_page)}" target="_blank" rel="noopener">${esc(H.source.name)}</a> (copy used: <a href="${esc(H.source.copy_used)}" target="_blank" rel="noopener">GitHub mirror</a>). ${esc(H.source.limitations)} ${statusBadge("historical")}`;
   const years = [...new Set(S.monthly.map(m => m.year))];
   $("anYear").innerHTML = years.slice().reverse().map(y => `<option>${y}</option>`).join("");
@@ -201,7 +203,7 @@ function seasonChart(seasons, mean) {
   const ma = seasons.map((s, i) => s.jjas_ma10_mm === null ? null : `${(x(i) + bw / 2).toFixed(1)},${y(s.jjas_ma10_mm).toFixed(1)}`).filter(Boolean).join(" ");
   const ticks = [0, max / 2, max].map(v => `<text x="${P.l - 4}" y="${y(v) + 3}" text-anchor="end">${nf(v)}</text><line class="axis" x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}"/>`).join("");
   const yrs = seasons.filter(s => s.year % 20 === 0 || s.year === 1901).map(s => `<text x="${x(seasons.indexOf(s)) + bw / 2}" y="${Hh - 6}" text-anchor="middle">${s.year}</text>`).join("");
-  return `<svg class="chart" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Jun–Sep rainfall 1901 to 2015 with deficient seasons highlighted">${ticks}${bars}
+  return `<svg class="chart" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Jun–Sep rainfall ${seasons[0].year} to ${seasons[seasons.length - 1].year} with deficient seasons highlighted">${ticks}${bars}
     <line x1="${P.l}" x2="${W - P.r}" y1="${y(mean)}" y2="${y(mean)}" stroke="var(--muted)" stroke-dasharray="4 3"/>
     <polyline points="${ma}" fill="none" stroke="var(--ink)" stroke-width="2"/>${yrs}<text x="${P.l}" y="${P.t + 2}" dx="4">mm</text></svg>`;
 }
@@ -262,7 +264,7 @@ async function loadForecast() {
     const line = (k, col, dash) => `<polyline fill="none" stroke="${col}" stroke-width="2" ${dash ? `stroke-dasharray="${dash}"` : ""} points="${bt.rows.map((r, i) => `${x(i).toFixed(1)},${y(r[k]).toFixed(1)}`).join(" ")}"/>`;
     const yrs = bt.rows.map((r, i) => r.month === 1 ? `<text x="${x(i)}" y="${Hh - 6}">${r.year}</text>` : "").join("");
     $("fcOut").innerHTML = `<p style="font-size:14.5px"><b>${MON3[f.month - 1]}: about ${nf(f.forecast_mm, 0)} mm</b> expected (South Interior Karnataka). ${esc(f.method)}</p>
-      <svg class="chart" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Out-of-sample forecasts versus actual monthly rainfall 2011–2015"><line class="axis" x1="${P.l}" x2="${W - P.r}" y1="${y(0)}" y2="${y(0)}"/><text x="${P.l - 4}" y="${y(max) + 3}" text-anchor="end">${max}</text>
+      <svg class="chart" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Out-of-sample forecasts versus actual monthly rainfall ${bt.rows[0].year}–${bt.rows[bt.rows.length - 1].year}"><line class="axis" x1="${P.l}" x2="${W - P.r}" y1="${y(0)}" y2="${y(0)}"/><text x="${P.l - 4}" y="${y(max) + 3}" text-anchor="end">${max}</text>
       ${line("actual", "var(--rain)")}${line("climatology", "var(--muted)", "4 3")}${line("random_forest", "var(--warn)")}${yrs}</svg>
       <div class="legend"><span><i style="background:var(--rain)"></i>Actual</span><span><i style="background:var(--muted)"></i>Monthly average (selected)</span><span><i style="background:var(--warn)"></i>Random Forest</span></div>
       <p class="src">${esc(bt.note)} Model: ${esc(f.model.name)} v${esc(f.model.version)} · generated ${esc(new Date(f.generated_at * 1000).toLocaleString("en-IN"))}</p>`;
@@ -270,7 +272,7 @@ async function loadForecast() {
 }
 function renderAnomalies() {
   const a = S.models.anomaly;
-  $("anomList").innerHTML = `<p style="font-size:13.5px">The model flagged ${a.agreement.isolation_forest_flags} of 1,378 months as unusual. It caught ${a.agreement.both} of the ${a.agreement.rule_abs_z_ge_3_flags} months that are 3+ standard deviations from normal. There are no labelled 'true anomalies', so this is agreement with a rule, not accuracy.</p>
+  $("anomList").innerHTML = `<p style="font-size:13.5px">The model flagged ${a.agreement.isolation_forest_flags} of ${nf(S.monthly.length - 2)} months as unusual. It caught ${a.agreement.both} of the ${a.agreement.rule_abs_z_ge_3_flags} months that are 3+ standard deviations from normal. There are no labelled 'true anomalies', so this is agreement with a rule, not accuracy.</p>
     <div class="tw"><table class="t"><thead><tr><th>Month</th><th>Rain</th><th>Normal</th><th>z</th></tr></thead><tbody>${a.flagged.slice(0, 8).map(r => `<tr><td>${MON3[r.month - 1]} ${r.year}</td><td class="num">${nf(r.rain_mm, 1)} mm</td><td class="num">${nf(r.normal_mm, 1)} mm</td><td class="num">${signed(r.z, 1)}</td></tr>`).join("")}</tbody></table></div>`;
 }
 $("anForm").addEventListener("submit", async e => {
