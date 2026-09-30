@@ -90,6 +90,19 @@ def delete_report(rid: int, request: Request, user: dict = Depends(admin_only)):
     return {"deleted": rid}
 
 
+@router.delete("/reports/{rid}/photo")
+def remove_photo(rid: int, request: Request, user: dict = Depends(admin_only)):
+    """Remove only the photo from a report; the report and its history stay."""
+    r = db.one("SELECT id, (photo IS NOT NULL) AS has_photo FROM reports WHERE id=?", (rid,))
+    if not r:
+        raise HTTPException(404, "Report not found.")
+    if not r["has_photo"]:
+        raise HTTPException(404, "This report has no photo.")
+    db.run("UPDATE reports SET photo=NULL, ai_cls=NULL, ai_text=NULL, updated_at=? WHERE id=?", (time.time(), rid))
+    auth.audit(user, "report_photo_remove", f"report:{rid}", "", request)
+    return {"photo_removed": rid}
+
+
 class ReservoirIn(BaseModel):
     reservoir_id: str = Field(pattern=r"^[a-z0-9_]{2,40}$")
     reservoir: str = Field(min_length=2, max_length=80)

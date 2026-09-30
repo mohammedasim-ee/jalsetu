@@ -17,11 +17,18 @@ Version 2.0.0. Generated from the OpenAPI schema by `python scripts/gen_api_docs
 | `GET` | `/api/admin/reports` | admin | All reports with allowed status transitions | status, limit | – |
 | `PATCH` | `/api/admin/reports/{rid}` | admin | Change a report's status (state machine enforced, audit-logged) | rid | JSON `StatusIn` |
 | `DELETE` | `/api/admin/reports/{rid}` | admin | Permanently delete a report, its photo and status history (audit-logged) | rid | – |
+| `DELETE` | `/api/admin/reports/{rid}/photo` | admin | Remove only a report's photo (admin, audit-logged) | rid | – |
 | `POST` | `/api/admin/reservoir-readings` | admin | Add a reservoir reading with its source (ingestion interface) | – | JSON `ReservoirIn` |
 | `POST` | `/api/admin/lake-observations` | admin | Add a lake quality observation with its source | – | JSON `LakeObsIn` |
 | `GET` | `/api/admin/audit-logs` | admin | Audit log of admin and account actions | limit | – |
 | `GET` | `/api/admin/users` | admin | Accounts (no password data) | – | – |
 | `GET` | `/api/admin/predictions` | admin | Logged model predictions | limit | – |
+
+## admin-setup-status
+
+| Method | Path | Auth | Purpose | Params | Body |
+| --- | --- | --- | --- | --- | --- |
+| `GET` | `/api/admin-setup-status` | admin | Diagnose admin login: whether ADMIN_* settings are present and match the account (no secrets) | – | – |
 
 ## ai
 
@@ -41,6 +48,7 @@ Version 2.0.0. Generated from the OpenAPI schema by `python scripts/gen_api_docs
 | --- | --- | --- | --- | --- | --- |
 | `POST` | `/api/auth/register` | – | Create a citizen or organization account (returns a session token) | – | JSON `RegisterIn` |
 | `POST` | `/api/auth/login` | – | Log in (returns a session token) | – | JSON `LoginIn` |
+| `POST` | `/api/auth/admin-check` | – | Explain a failed admin login: wrong email, wrong password, or admin not set up (rate-limited) | – | JSON `LoginIn` |
 | `POST` | `/api/auth/logout` | logged in | End this session | – | – |
 | `GET` | `/api/auth/me` | logged in | The logged-in account | – | – |
 
@@ -49,7 +57,7 @@ Version 2.0.0. Generated from the OpenAPI schema by `python scripts/gen_api_docs
 | Method | Path | Auth | Purpose | Params | Body |
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/api/forecast` | – | Next-month rainfall forecast with the evaluation behind the chosen model | month | – |
-| `GET` | `/api/forecast/backtest` | – | Out-of-sample forecasts vs actual rainfall (test period 1996–2015) | start | – |
+| `GET` | `/api/forecast/backtest` | – | Out-of-sample forecasts vs actual rainfall (test period 1996 onwards) | start | – |
 
 ## gis
 
@@ -113,7 +121,7 @@ Version 2.0.0. Generated from the OpenAPI schema by `python scripts/gen_api_docs
 
 | Method | Path | Auth | Purpose | Params | Body |
 | --- | --- | --- | --- | --- | --- |
-| `GET` | `/api/rainfall` | – | Current season departures plus 1901–2015 climatology, trend, Mann-Kendall test, driest seasons | – | – |
+| `GET` | `/api/rainfall` | – | Current season departures plus 1901–2017 IMD climatology, trend, Mann-Kendall test, driest seasons | – | – |
 | `GET` | `/api/rainfall/history` | – | Season rows (and optionally monthly rows with anomalies) for a year range | start, end, monthly | – |
 
 ## reports
@@ -122,6 +130,7 @@ Version 2.0.0. Generated from the OpenAPI schema by `python scripts/gen_api_docs
 | --- | --- | --- | --- | --- | --- |
 | `GET` | `/api/reports` | – | Community reports, newest first; filter by status or category | limit, status, category, include_rejected | – |
 | `POST` | `/api/reports` | optional (anonymous allowed) | Submit a report (category, area or map point, description, optional photo) | – | multipart form `Body_create_report_api_reports_post` |
+| `DELETE` | `/api/reports/{rid}` | – | Delete your own report (reports sent while logged in) | rid | – |
 | `GET` | `/api/reports/{rid}` | – | One report with its status history | rid | – |
 | `GET` | `/api/reports/{rid}/photo` | – | The report's resized photo | rid | – |
 

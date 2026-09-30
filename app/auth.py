@@ -161,6 +161,28 @@ def admin_setup_status() -> dict:
             "account_password_matches_setting": bool(u and pw and verify_password(pw, u["password_hash"]))}
 
 
+def admin_login_check(email: str, password: str) -> dict:
+    """Explains a failed admin login precisely. Rate-limited like login; never reveals the stored password."""
+    ensure_admin_from_env()
+    cfg_email, _ = admin_env()
+    typed = email.strip().lower()
+    if not cfg_email:
+        return {"problem": "no_admin_configured",
+                "message": "No admin is set up on this server. Add ADMIN_EMAIL and ADMIN_PASSWORD in Vercel (Production), then redeploy."}
+    local = cfg_email.split("@")[0]
+    hint = f"{cfg_email[:2]}{'•' * max(0, len(local) - 2)}@{cfg_email.split('@')[1]}" if "@" in cfg_email else "(set)"
+    if typed != cfg_email:
+        return {"problem": "email_mismatch",
+                "message": f"This email is not the admin email set in Vercel. The admin email looks like {hint} "
+                           f"({len(cfg_email)} characters); you typed {len(typed)} characters. Check ADMIN_EMAIL in Vercel for typos."}
+    u = db.one("SELECT password_hash FROM users WHERE email=?", (cfg_email,))
+    if u and (verify_password(password, u["password_hash"]) or verify_password(password.strip(), u["password_hash"])):
+        return {"problem": None, "message": "Email and password match. Try logging in again."}
+    return {"problem": "password_mismatch",
+            "message": f"The email is correct, but the password doesn't match ADMIN_PASSWORD in Vercel. You typed {len(password)} characters. "
+                       "Copy the value from Vercel and paste it here (watch for an auto-capitalised first letter)."}
+
+
 def ensure_admin_from_env() -> Optional[int]:
     """Create or update the admin account from ADMIN_EMAIL / ADMIN_PASSWORD (never hard-coded)."""
     email, pw = admin_env()

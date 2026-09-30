@@ -204,3 +204,35 @@ def test_keyboard_reaches_every_tab_with_visible_focus(base, browser):
     page.focus('nav.tabs button[data-v="quality"]'); page.keyboard.press("Enter")
     assert not page.is_hidden("#v-quality")
     ctx.close()
+
+
+def test_main_site_login_and_delete_own_report(base, browser):
+    ctx, page, errors = _page(browser, viewport={"width": 390, "height": 844})
+    page.goto(base + "/"); page.wait_for_selector(".gauge b")
+    email = f"friend-{uuid.uuid4().hex[:6]}@example.com"
+    page.click("#loginBtn"); page.click("#modeReg")
+    page.fill("#aEmail", email); page.fill("#aPass", "friend-pass-1"); page.fill("#aName", "Friend"); page.click("#authSubmit")
+    _wait(page, "document.querySelector('#acct').innerText.includes('Friend')")
+    page.click("#logoutBtn"); _wait(page, "!!document.querySelector('#loginBtn')")
+    # log back in with the Log in tab (not registration)
+    page.click("#loginBtn"); page.fill("#aEmail", email.upper()); page.fill("#aPass", "friend-pass-1"); page.click("#authSubmit")
+    _wait(page, "document.querySelector('#acct').innerText.includes('Friend')")
+    _tab(page, "report")
+    page.select_option("#rCat", "other"); page.select_option("#rArea", "Hebbal"); page.fill("#rDesc", "friend test report")
+    page.click("#repBtn")
+    _wait(page, "!!document.querySelector('[data-delmine]')")
+    page.once("dialog", lambda d: d.accept())
+    page.click("[data-delmine]")
+    _wait(page, "!document.querySelector('#reports').innerText.includes('friend test report')")
+    assert not errors, errors
+    ctx.close()
+
+
+def test_admin_login_failure_explains_problem(base, browser):
+    ctx, page, errors = _page(browser, viewport={"width": 1280, "height": 900})
+    page.goto(base + "/admin")
+    page.fill("#email", ADMIN[0]); page.fill("#pass", "Wrong-password-here"); page.click("#loginForm button")
+    _wait(page, "document.querySelector('#loginErr').innerText.includes(\"doesn't match ADMIN_PASSWORD\")")
+    page.fill("#email", "someone@else.com"); page.click("#loginForm button")
+    _wait(page, "document.querySelector('#loginErr').innerText.includes('not the admin email')")
+    ctx.close()

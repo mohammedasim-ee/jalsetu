@@ -85,7 +85,7 @@ Preprocessing and features (`ml/features.py`, training-period baselines only, so
 
 ## 10. API
 
-52 endpoints. [API.md](API.md) is generated from the OpenAPI schema by `python scripts/gen_api_docs.py`.
+55 endpoints. [API.md](API.md) is generated from the OpenAPI schema by `python scripts/gen_api_docs.py`.
 
 ## 11. Database schema
 
@@ -147,7 +147,7 @@ python -m mypy
 ```
 
 Latest run (30 Sep 2026):
-- **pytest:** 112 passed (backend, pipeline, ML, and 6 browser end-to-end tests), on both SQLite and PostgreSQL 16 for the non-browser suites.
+- **pytest:** 117 passed (backend, pipeline, ML, and 8 browser end-to-end tests), on both SQLite and PostgreSQL 16 for the non-browser suites.
 - **node:** 9 passed.
 - **ruff and mypy:** clean.
 

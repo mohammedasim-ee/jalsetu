@@ -165,3 +165,38 @@ def test_admin_setup_status_and_quoted_values(c, monkeypatch):
     assert c.post("/api/auth/login", json={"email": "admin@jalsetu.test", "password": "quoted-pass-123"}).status_code == 200
     monkeypatch.setenv("ADMIN_PASSWORD", "correct-horse-battery")
     auth.ensure_admin_from_env()
+
+
+def test_owner_can_delete_own_report_only(c, citizen, admin):
+    mine = c.post("/api/reports", data={"category": "leakage", "area": "Hebbal", "description": "mine"}, headers=citizen).json()["id"]
+    anon = c.post("/api/reports", data={"category": "leakage", "area": "Hebbal", "description": "anonymous"}).json()["id"]
+    listed = {r["id"]: r["mine"] for r in c.get("/api/reports?limit=200", headers=citizen).json()["reports"]}
+    assert listed[mine] is True and listed[anon] is False
+    assert all(r["mine"] is False for r in c.get("/api/reports?limit=200").json()["reports"])   # not logged in
+    assert "user_id" not in c.get("/api/reports?limit=1").json()["reports"][0]                    # identities never exposed
+    assert c.delete(f"/api/reports/{anon}", headers=citizen).status_code == 403
+    assert c.delete(f"/api/reports/{mine}").status_code == 401
+    assert c.delete(f"/api/reports/{mine}", headers=admin).status_code == 403          # admins use the admin route
+    assert c.delete(f"/api/reports/{mine}", headers=citizen).json() == {"deleted": mine}
+    assert c.get(f"/api/reports/{mine}").status_code == 404 and c.get(f"/api/reports/{anon}").status_code == 200
+
+
+def test_admin_remove_photo_keeps_report(c, admin, citizen):
+    from tests.conftest import jpeg
+    rid = c.post("/api/reports", data={"category": "other", "area": "Hebbal"}, files={"photo": ("p.jpg", jpeg(300, 300), "image/jpeg")}).json()["id"]
+    assert c.delete(f"/api/admin/reports/{rid}/photo", headers=citizen).status_code == 403
+    assert c.delete(f"/api/admin/reports/{rid}/photo", headers=admin).json() == {"photo_removed": rid}
+    r = c.get(f"/api/reports/{rid}").json()
+    assert r["photo_url"] is None and r["id"] == rid
+    assert c.get(f"/api/reports/{rid}/photo").status_code == 404
+    assert c.delete(f"/api/admin/reports/{rid}/photo", headers=admin).status_code == 404
+    assert any(l["action"] == "report_photo_remove" for l in c.get("/api/admin/audit-logs", headers=admin).json()["logs"])
+
+
+def test_admin_check_explains_failed_login(c):
+    wrong_email = c.post("/api/auth/admin-check", json={"email": "admin@jalsetu.tes", "password": "x"}).json()
+    assert wrong_email["problem"] == "email_mismatch" and "ad" in wrong_email["message"] and "@jalsetu.test" in wrong_email["message"]
+    wrong_pw = c.post("/api/auth/admin-check", json={"email": "Admin@JalSetu.test", "password": "Correct-horse-battery"}).json()
+    assert wrong_pw["problem"] == "password_mismatch" and "correct-horse" not in wrong_pw["message"]
+    ok = c.post("/api/auth/admin-check", json={"email": "admin@jalsetu.test", "password": "correct-horse-battery"}).json()
+    assert ok["problem"] is None

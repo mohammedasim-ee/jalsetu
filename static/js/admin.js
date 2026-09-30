@@ -21,7 +21,13 @@ $("loginForm").addEventListener("submit", async e => {
     if (j.user.role !== "admin") { $("loginErr").textContent = "This account is not an admin."; return; }
     TOKEN = j.token; try { localStorage.setItem("jalsetu.token", TOKEN); } catch (e) {}
     load();
-  } catch (err) { $("loginErr").textContent = err.msg; }
+  } catch (err) {
+    $("loginErr").textContent = err.msg;
+    if (err.status === 401) {   // explain exactly what doesn't match the server's ADMIN_* settings
+      try { const c = await api("/auth/admin-check", { method: "POST", body: { email: $("email").value, password: $("pass").value } }); $("loginErr").textContent = c.message; }
+      catch (e2) { /* keep the original message */ }
+    }
+  }
 });
 async function load() {
   if (!TOKEN) { showLogin(); return; }
@@ -49,12 +55,20 @@ async function loadReports() {
   const st = $("stFilter").value;
   const j = await api("/admin/reports" + (st ? "?status=" + st : ""));
   FLOW = j.allowed_transitions;
-  $("repRows").innerHTML = j.reports.map(r => `<tr><td class="num">${r.id}</td><td><b>${esc(r.category_label)}</b> · ${esc(r.area)}${r.ward ? ` (ward ${r.ward.ward_no})` : ""}${r.is_demo ? ` <span class="st demo">demo</span>` : ""}<br><small class="muted">${esc(r.description || "")} · ${esc(ago(r.created_at))}</small>${r.photo_url ? `<br><a href="${esc(r.photo_url)}" target="_blank" rel="noopener">photo</a>` : ""}</td>
+  $("repRows").innerHTML = j.reports.map(r => `<tr><td class="num">${r.id}</td><td><b>${esc(r.category_label)}</b> · ${esc(r.area)}${r.ward ? ` (ward ${r.ward.ward_no})` : ""}${r.is_demo ? ` <span class="st demo">demo</span>` : ""}<br><small class="muted">${esc(r.description || "")} · ${esc(ago(r.created_at))}</small>${r.photo_url ? `<br><a href="${esc(r.photo_url)}" target="_blank" rel="noopener">photo</a> · <button class="plain" type="button" data-rmphoto="${r.id}" style="color:var(--crit);padding:0">Remove photo</button>` : ""}</td>
     <td><span class="pill ${statusClass(r.status)}">${esc(statusLabel(r.status))}</span></td>
     <td>${(FLOW[r.status] || []).length ? `<div class="row" style="gap:4px"><input id="n-${r.id}" placeholder="note (optional)" maxlength="300" style="width:140px;padding:5px 8px">${FLOW[r.status].map(s => `<button class="small ${s === "REJECTED" ? "ghost" : ""}" type="button" data-id="${r.id}" data-to="${s}">${esc(statusLabel(s))}</button>`).join("")}</div>` : `<span class="muted">final</span>`}</td><td><button class="small ghost" type="button" data-del="${r.id}" data-label="${esc(r.category_label)} · ${esc(r.area)}" aria-label="Delete report ${r.id}" style="color:var(--crit);border-color:var(--crit)">Delete</button></td></tr>`).join("") || `<tr><td colspan="5" class="empty">No reports.</td></tr>`;
 }
 $("stFilter").onchange = loadReports;
 document.addEventListener("click", async e => {
+  const p = e.target.closest("button[data-rmphoto]");
+  if (p) {
+    if (!confirm(`Remove the photo from report #${p.dataset.rmphoto}? The report itself stays. This can't be undone.`)) return;
+    p.disabled = true;
+    try { await api(`/admin/reports/${p.dataset.rmphoto}/photo`, { method: "DELETE" }); toast("Photo removed."); load(); }
+    catch (err) { toast(err.msg); p.disabled = false; }
+    return;
+  }
   const d = e.target.closest("button[data-del]");
   if (d) {
     if (!confirm(`Permanently delete report #${d.dataset.del} (${d.dataset.label})?\n\nIts photo and status history are deleted too. This can't be undone.`)) return;

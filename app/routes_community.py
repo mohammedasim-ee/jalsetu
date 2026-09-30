@@ -58,6 +58,12 @@ def login(body: LoginIn, request: Request):
     return {"token": token, "user": u}
 
 
+@router.post("/auth/admin-check")
+def admin_check(body: LoginIn, request: Request):
+    rate_limit(request, "login")
+    return auth.admin_login_check(body.email, body.password)
+
+
 @router.post("/auth/logout")
 def logout(request: Request, user: dict = Depends(auth.current_user)):
     auth.logout(request.headers.get("authorization", "")[7:])
@@ -88,7 +94,7 @@ COLS = "id,type,category,area,ward_no,ward_name,lat,lng,note,price,litres,status
 
 @router.get("/reports")
 def list_reports(limit: int = Query(50, ge=1, le=200), status: Optional[str] = None, category: Optional[str] = None,
-                 include_rejected: bool = False):
+                 include_rejected: bool = False, user: Optional[dict] = Depends(auth.optional_user)):
     where, params = [], []
     if status:
         if status not in rules.REPORT_STATUSES:
@@ -101,8 +107,24 @@ def list_reports(limit: int = Query(50, ge=1, le=200), status: Optional[str] = N
             raise HTTPException(422, "Unknown category.")
         where.append("category=?"); params.append(category)
     # only fixed column names and fixed condition strings are joined; every value is a bound parameter
-    sql = f"SELECT {COLS} FROM reports" + (" WHERE " + " AND ".join(where) if where else "") + " ORDER BY created_at DESC LIMIT ?"  # noqa: S608
-    return {"reports": [report_out(r) for r in db.rows(sql, (*params, limit))]}
+    sql = f"SELECT {COLS}, user_id FROM reports" + (" WHERE " + " AND ".join(where) if where else "") + " ORDER BY created_at DESC LIMIT ?"  # noqa: S608
+    # 'mine' tells a logged-in reporter which reports they may delete; reporter identities are never returned
+    return {"reports": [report_out(r) | {"mine": bool(user and r["user_id"] == user["id"])} for r in db.rows(sql, (*params, limit))]}
+
+
+@router.delete("/reports/{rid}")
+def delete_own_report(rid: int, request: Request, user: dict = Depends(auth.current_user)):
+    """Reporter deletes their own report (reports sent while logged in). Admins use /api/admin/reports/{rid}."""
+    r = db.one("SELECT id, user_id, category, area, status FROM reports WHERE id=?", (rid,))
+    if not r:
+        raise HTTPException(404, "Report not found.")
+    if r["user_id"] is None or r["user_id"] != user["id"]:
+        raise HTTPException(403, "You can only delete reports you submitted while logged in.")
+    with db.db() as c:
+        c.execute("DELETE FROM report_events WHERE report_id=?", (rid,))
+        c.execute("DELETE FROM reports WHERE id=?", (rid,))
+    auth.audit(user, "report_delete_own", f"report:{rid}", f"{r['category']} · {r['area']} · was {r['status']}", request)
+    return {"deleted": rid}
 
 
 @router.post("/reports", status_code=201)

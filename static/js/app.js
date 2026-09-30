@@ -59,7 +59,7 @@ document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("cl
 function setUser(token, user) {
   S.token = token; S.user = user;
   store.set("jalsetu.token", token);
-  renderAcct(); renderExchangeForms();
+  renderAcct(); renderExchangeForms(); loadReports();
 }
 function renderAcct() {
   const a = $("acct");
@@ -390,7 +390,7 @@ async function loadReports() {
     $("reports").innerHTML = j.reports.length ? j.reports.map(r => `<div class="item"><span><b>${esc(r.category_label)}</b> · ${esc(r.area)}${r.ward ? ` <small style="display:inline">(ward ${r.ward.ward_no})</small>` : ""} <span class="pill ${statusClass(r.status)}">${esc(statusLabel(r.status))}</span>${r.is_demo ? ` <span class="st demo">demo</span>` : ""}
       ${r.category === "tanker" && r.price ? ` · <span class="num">${inr(r.price)}</span> for <span class="num">${nf(r.litres)} L</span>` : ""}<small>${esc(r.description || "")}</small>
       ${r.photo_url ? `<img src="${esc(r.photo_url)}" alt="Photo for this report" loading="lazy" style="display:block;margin-top:6px;border-radius:6px;max-height:110px">` : ""}${r.ai ? `<span class="aiv ${esc(r.ai.cls)}">${esc(r.ai.text)}</span>` : ""}</span>
-      <span class="muted" style="font-size:12px;white-space:nowrap">${esc(ago(r.created_at))}</span></div>`).join("")
+      <span class="muted" style="font-size:12px;white-space:nowrap;text-align:right">${esc(ago(r.created_at))}${r.mine ? `<br><button class="plain" type="button" data-delmine="${r.id}" style="color:var(--crit)">Delete</button>` : ""}</span></div>`).join("")
       : `<div class="empty">No reports yet. Be the first to report a water problem in your area.</div>`;
   } catch (e) { $("reports").innerHTML = `<p class="err">${esc(e.msg)}</p>`; }
 }
@@ -419,6 +419,14 @@ async function loadExchange() {
       <small class="muted">${nf(q.qty_kl_per_day)} kL/day for ${esc(tw.reuse_categories[q.purpose] || q.purpose)} · ${esc(fdate(q.needed_from))} to ${esc(fdate(q.needed_to))} · needs ${esc(q.min_treatment)} or better</small><div id="m-${q.id}"></div></div>`).join("") : `<div class="empty">No requests yet.</div>`;
 }
 document.addEventListener("click", async e => {
+  const m = e.target.closest("[data-delmine]");
+  if (m) {
+    if (!confirm(`Delete your report #${m.dataset.delmine}, including its photo? This can't be undone.`)) return;
+    m.disabled = true;
+    try { await api("/reports/" + m.dataset.delmine, { method: "DELETE" }); toast("Report deleted."); loadReports(); loadHotspots(); }
+    catch (err) { toast(err.msg); m.disabled = false; }
+    return;
+  }
   const t = e.target.closest("[data-match],[data-close-offer],[data-close-req]"); if (!t) return;
   if (t.dataset.match) {
     const box = $("m-" + t.dataset.match); box.innerHTML = `<div class="loading">Ranking offers…</div>`;
