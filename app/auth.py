@@ -135,16 +135,18 @@ def require(*roles: str):
 
 def ensure_admin_from_env() -> Optional[int]:
     """Create or update the admin account from ADMIN_EMAIL / ADMIN_PASSWORD (never hard-coded)."""
-    email, pw = os.environ.get("ADMIN_EMAIL", "").strip().lower(), os.environ.get("ADMIN_PASSWORD", "")
+    email, pw = os.environ.get("ADMIN_EMAIL", "").strip().lower(), os.environ.get("ADMIN_PASSWORD", "").strip()
     if not email or not pw:
+        return None
+    if len(pw) < 12:   # never take the whole site down over a bad setting; just skip the admin account
+        import logging
+        logging.getLogger("jalsetu").error("ADMIN_PASSWORD is shorter than 12 characters; admin account not created or updated")
         return None
     u = db.one("SELECT * FROM users WHERE email=?", (email,))
     if u:
         if u["role"] != "admin" or not verify_password(pw, u["password_hash"]):
             db.run("UPDATE users SET role='admin', password_hash=? WHERE id=?", (hash_password(pw), u["id"]))
         return u["id"]
-    if len(pw) < 12:
-        raise RuntimeError("ADMIN_PASSWORD must be at least 12 characters.")
     return db.run("INSERT INTO users(email,name,role,organization,password_hash,created_at) VALUES(?,?,?,?,?,?)",
                   (email, "Administrator", "admin", None, hash_password(pw), time.time()))
 

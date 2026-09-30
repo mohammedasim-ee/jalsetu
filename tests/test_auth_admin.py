@@ -136,3 +136,10 @@ def test_admin_delete_report_removes_only_that_report(c, admin, citizen):
     assert c.delete(f"/api/admin/reports/{rid}", headers=admin).status_code == 404
     logs = c.get("/api/admin/audit-logs", headers=admin).json()["logs"]
     assert any(l["action"] == "report_delete" and l["target"] == f"report:{rid}" and "was VERIFIED" in l["detail"] for l in logs)
+
+
+def test_short_admin_password_does_not_crash(monkeypatch):
+    monkeypatch.setenv("ADMIN_EMAIL", "other-admin@jalsetu.test")
+    monkeypatch.setenv("ADMIN_PASSWORD", "short")
+    assert auth.ensure_admin_from_env() is None
+    assert db.one("SELECT id FROM users WHERE email='other-admin@jalsetu.test'") is None
