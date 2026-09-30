@@ -7,7 +7,7 @@ from tests.conftest import jpeg
 
 def test_health_site_and_docs(c):
     h = c.get("/api/health").json()
-    assert h["ok"] is True and h["ai"] is False and h["schema_version"] == 2
+    assert h["ok"] is True and h["ai"] is False and h["schema_version"] == 3
     assert h["data_mode"].startswith("official data") and h["models"]["version"]
     assert c.get("/").status_code == 200 and "JalSetu" in c.get("/").text
     assert c.get("/docs").status_code == 200

@@ -44,7 +44,8 @@ class _PgConn:
         insert = sql.lstrip().upper().startswith("INSERT") and "RETURNING" not in sql.upper()
         cur = self.con.cursor(row_factory=lambda c: (lambda vals: _PgRow(zip([d.name for d in c.description], vals))))
         cur.execute(sql.replace("?", "%s") + (" RETURNING id" if insert else ""), params)
-        return _PgResult(cur, cur.fetchone()["id"] if insert else None)
+        row = cur.fetchone() if insert else None   # INSERT ... SELECT may insert zero rows
+        return _PgResult(cur, row["id"] if row else None)
 
 
 @contextmanager
@@ -153,6 +154,15 @@ MIGRATIONS: list[tuple[int, str, list[str]]] = [
         """CREATE TABLE audit_logs(
              id {pk}, actor_id INTEGER, action TEXT NOT NULL, target TEXT, detail TEXT, ip TEXT, created_at {float} NOT NULL)""",
         "CREATE INDEX IF NOT EXISTS audit_time ON audit_logs(created_at)",
+    ]),
+    # One-time cleanup requested by the project owner: the 3 rehearsal reports submitted on 30 Sep 2026
+    # (00:00–11:00 UTC, before v2 went live), all "groundwater" in Banashankari / Basavanagudi.
+    (3, "remove 30 Sep 2026 rehearsal reports", [
+        "INSERT INTO audit_logs(actor_id, action, target, detail, ip, created_at) "
+        "SELECT NULL, 'report_delete', 'report:' || id, 'cleanup migration 3 (owner request): ' || category || ' · ' || area, '', 1790778000 "
+        "FROM reports WHERE created_at >= 1790726400 AND created_at < 1790766000 AND category = 'groundwater' AND area IN ('Banashankari', 'Basavanagudi') AND is_demo = 0",
+        "DELETE FROM report_events WHERE report_id IN (SELECT id FROM reports WHERE created_at >= 1790726400 AND created_at < 1790766000 AND category = 'groundwater' AND area IN ('Banashankari', 'Basavanagudi') AND is_demo = 0)",
+        "DELETE FROM reports WHERE created_at >= 1790726400 AND created_at < 1790766000 AND category = 'groundwater' AND area IN ('Banashankari', 'Basavanagudi') AND is_demo = 0",
     ]),
 ]
 

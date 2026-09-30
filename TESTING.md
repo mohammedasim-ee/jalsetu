@@ -22,12 +22,12 @@ Run against PostgreSQL by setting `DATABASE_URL` to an empty database first; the
 | Exchange | `tests/test_exchange.py` | 4 | Hard filters (use, treatment, dates), score formula, overlap days, roles, validation, ranking (nearest first, blocked excluded), savings, unmet demand, owner-only close |
 | Risk engine | `tests/test_risk.py` | 18 | Weights sum to 1, normalisation (both directions, clamping, bad input), hand-calculated score, LOW and CRITICAL cases, out-of-range inputs rejected, explanation text, every warning rule including trend and one-reading cases, data age |
 | Pipeline | `tests/test_pipeline.py` | 7 | Bad rows dropped (missing, negative, duplicate, sum mismatch), missing columns rejected, statistics (moving average, OLS, Mann-Kendall, IMD categories), anomaly definition, point-in-polygon and simplification, indicator provenance validation, byte-identical reruns, ward-area sanity check |
-| Migrations | `tests/test_migrations.py` | 1 | A v1 database upgrades to v2 with categories mapped; migrate is idempotent |
+| Migrations | `tests/test_migrations.py` | 2 | A v1 database upgrades to v2 with categories mapped; migrate is idempotent |
 | ML | `ml/tests/test_ml.py` | 10 | Loading and validation, training-only climatology, feature definitions, artifact metadata, internally consistent metrics, **JSON inference equals scikit-learn** (classifier and Isolation Forest), explanations add up, forecast uses the selected model |
 | End-to-end | `tests/e2e/test_e2e.py` | 8 | Real Chromium, own server: open → dashboard → risk explanation → map (243 wards, ward click) → report with photo → quality Safe/High/Unsafe → RWH ₹8,400 → org registers, offers, requests, match ranked #1 at 5.5 km → ML prediction with explanation → admin reviews the report → citizen sees "Verified". No JS errors, no API errors ≥ 400, no CSP violations; no sideways scroll on any tab at 320/390/768/1366 px in light and dark; keyboard Tab reaches all 7 tabs with visible focus, Enter works |
 | Frontend units | `static/js/lib.test.js` | 9 | Escaping, Indian number format and minus sign, dates, relative time, season features match the server's, status and level classes, quality explanations, chart scaling, provenance text |
 
-Counts are tests as collected by pytest (parametrised cases counted separately): 118 Python tests + 9 JavaScript tests.
+Counts are tests as collected by pytest (parametrised cases counted separately): 119 Python tests + 9 JavaScript tests.
 
 ## Failing cases the system handles (good demo material)
 

@@ -89,7 +89,7 @@ Preprocessing and features (`ml/features.py`, training-period baselines only, so
 
 ## 11. Database schema
 
-Versioned migrations are in `app/db.py`; the applied version is recorded in `schema_migrations` (currently 2).
+Versioned migrations are in `app/db.py`; the applied version is recorded in `schema_migrations` (currently 3).
 
 | Table | Purpose |
 | --- | --- |
@@ -147,7 +147,7 @@ python -m mypy
 ```
 
 Latest run (30 Sep 2026):
-- **pytest:** 118 passed (backend, pipeline, ML, and 8 browser end-to-end tests), on both SQLite and PostgreSQL 16 for the non-browser suites.
+- **pytest:** 119 passed (backend, pipeline, ML, and 8 browser end-to-end tests), on both SQLite and PostgreSQL 16 for the non-browser suites.
 - **node:** 9 passed.
 - **ruff and mypy:** clean.
 
