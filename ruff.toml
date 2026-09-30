@@ -1,0 +1,11 @@
+line-length = 160
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "W", "B", "S", "UP", "I"]
+# style-only rules relaxed on purpose: compact one-line statements and long lines in data-heavy code
+ignore = ["E501", "E701", "E702", "E731", "E741", "B008", "B905", "S101", "S311", "UP007", "UP045"]
+
+[lint.per-file-ignores]
+"tests/**" = ["S", "B", "E402"]
+"ml/tests/**" = ["S", "B"]
