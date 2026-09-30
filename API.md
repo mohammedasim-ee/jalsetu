@@ -16,6 +16,7 @@ Version 2.0.0. Generated from the OpenAPI schema by `python scripts/gen_api_docs
 | `GET` | `/api/admin/overview` | admin | Admin dashboard data: reports by status, risk, warnings, freshness, health, ML, activity | – | – |
 | `GET` | `/api/admin/reports` | admin | All reports with allowed status transitions | status, limit | – |
 | `PATCH` | `/api/admin/reports/{rid}` | admin | Change a report's status (state machine enforced, audit-logged) | rid | JSON `StatusIn` |
+| `DELETE` | `/api/admin/reports/{rid}` | admin | Permanently delete a report, its photo and status history (audit-logged) | rid | – |
 | `POST` | `/api/admin/reservoir-readings` | admin | Add a reservoir reading with its source (ingestion interface) | – | JSON `ReservoirIn` |
 | `POST` | `/api/admin/lake-observations` | admin | Add a lake quality observation with its source | – | JSON `LakeObsIn` |
 | `GET` | `/api/admin/audit-logs` | admin | Audit log of admin and account actions | limit | – |

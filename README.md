@@ -85,7 +85,7 @@ Preprocessing and features (`ml/features.py`, training-period baselines only, so
 
 ## 10. API
 
-51 endpoints. [API.md](API.md) is generated from the OpenAPI schema by `python scripts/gen_api_docs.py`.
+52 endpoints. [API.md](API.md) is generated from the OpenAPI schema by `python scripts/gen_api_docs.py`.
 
 ## 11. Database schema
 

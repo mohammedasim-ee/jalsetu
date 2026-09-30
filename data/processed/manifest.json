@@ -1,7 +1,7 @@
 {
  "pipeline_version": "2.0.0",
- "generated_at": "2026-09-30T12:23:06Z",
- "duration_s": 0.49,
+ "generated_at": "2026-09-30T13:53:49Z",
+ "duration_s": 0.52,
  "inputs": {
   "bbmp_wards_kgis.geojson": "4a1186d15da9396c259a2c01b135ee5e903948d45de6e91c49e0ddd72f359a7b",
   "imd_subdivision_monthly_rainfall_1901_2015.csv": "635c98a69f07e6ab028414d2411a1e3b4c9ac4b7a5ee4748701a32297d939de7",

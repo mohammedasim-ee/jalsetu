@@ -46,6 +46,7 @@ DESCRIPTIONS = {
     ("get", "/api/admin/overview"): "Admin dashboard data: reports by status, risk, warnings, freshness, health, ML, activity",
     ("get", "/api/admin/reports"): "All reports with allowed status transitions",
     ("patch", "/api/admin/reports/{rid}"): "Change a report's status (state machine enforced, audit-logged)",
+    ("delete", "/api/admin/reports/{rid}"): "Permanently delete a report, its photo and status history (audit-logged)",
     ("post", "/api/admin/reservoir-readings"): "Add a reservoir reading with its source (ingestion interface)",
     ("post", "/api/admin/lake-observations"): "Add a lake quality observation with its source",
     ("get", "/api/admin/audit-logs"): "Audit log of admin and account actions",

@@ -115,3 +115,24 @@ def test_admin_from_env_is_idempotent():
     a = auth.ensure_admin_from_env()
     b = auth.ensure_admin_from_env()
     assert a == b and db.one("SELECT role FROM users WHERE id=?", (a,))["role"] == "admin"
+
+
+def test_admin_delete_report_removes_only_that_report(c, admin, citizen):
+    from tests.conftest import jpeg
+    keep = c.post("/api/reports", data={"category": "leakage", "area": "Hebbal", "description": "keep me"}).json()["id"]
+    rid = c.post("/api/reports", data={"category": "groundwater", "area": "Yelahanka", "description": "rehearsal"},
+                 files={"photo": ("p.jpg", jpeg(400, 300), "image/jpeg")}).json()["id"]
+    c.patch(f"/api/admin/reports/{rid}", json={"status": "VERIFIED"}, headers=admin)
+    comm = lambda: next(x for x in c.get("/api/risk/current").json()["components"] if x["key"] == "community")["value"]
+    before = comm()
+    assert c.delete(f"/api/admin/reports/{rid}").status_code == 401                 # not logged in
+    assert c.delete(f"/api/admin/reports/{rid}", headers=citizen).status_code == 403  # not admin
+    assert c.delete(f"/api/admin/reports/{rid}", headers=admin).json() == {"deleted": rid}
+    assert c.get(f"/api/reports/{rid}").status_code == 404
+    assert c.get(f"/api/reports/{rid}/photo").status_code == 404
+    assert db.one("SELECT COUNT(*) AS n FROM report_events WHERE report_id=?", (rid,))["n"] == 0
+    assert c.get(f"/api/reports/{keep}").status_code == 200                         # unrelated report untouched
+    assert comm() == before - 1                                                      # verified count drops by exactly one
+    assert c.delete(f"/api/admin/reports/{rid}", headers=admin).status_code == 404
+    logs = c.get("/api/admin/audit-logs", headers=admin).json()["logs"]
+    assert any(l["action"] == "report_delete" and l["target"] == f"report:{rid}" and "was VERIFIED" in l["detail"] for l in logs)

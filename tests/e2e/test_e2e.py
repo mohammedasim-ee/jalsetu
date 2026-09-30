@@ -160,6 +160,14 @@ def test_full_user_journey(base, browser, tmp_path):
     admin.wait_for_selector("#repRows button[data-to='VERIFIED']")
     admin.click("#repRows button[data-to='VERIFIED']")
     _wait(admin, "document.querySelector('#audit').innerText.includes('report_status')")
+    # admin deletes a report after confirming the dialog; list and counts refresh
+    extra = admin.evaluate("""async () => { const r = await fetch('/api/reports', {method: 'POST', body: (() => { const f = new FormData();
+        f.append('category', 'other'); f.append('area', 'Hebbal'); f.append('description', 'E2E rehearsal to delete'); return f; })()}); return (await r.json()).id; }""")
+    admin.reload(); admin.wait_for_selector(f"button[data-del='{extra}']")
+    admin.once("dialog", lambda d: d.accept())
+    admin.click(f"button[data-del='{extra}']")
+    _wait(admin, f"!document.querySelector(\"button[data-del='{extra}']\")")
+    _wait(admin, "document.querySelector('#audit').innerText.includes('report_delete')")
     page.reload(); _tab(page, "report")
     _wait(page, "document.querySelector('#reports').innerText.includes('Verified')")
     assert not errors and not a_err, errors + a_err

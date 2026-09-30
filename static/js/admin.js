@@ -51,10 +51,18 @@ async function loadReports() {
   FLOW = j.allowed_transitions;
   $("repRows").innerHTML = j.reports.map(r => `<tr><td class="num">${r.id}</td><td><b>${esc(r.category_label)}</b> · ${esc(r.area)}${r.ward ? ` (ward ${r.ward.ward_no})` : ""}${r.is_demo ? ` <span class="st demo">demo</span>` : ""}<br><small class="muted">${esc(r.description || "")} · ${esc(ago(r.created_at))}</small>${r.photo_url ? `<br><a href="${esc(r.photo_url)}" target="_blank" rel="noopener">photo</a>` : ""}</td>
     <td><span class="pill ${statusClass(r.status)}">${esc(statusLabel(r.status))}</span></td>
-    <td>${(FLOW[r.status] || []).length ? `<div class="row" style="gap:4px"><input id="n-${r.id}" placeholder="note (optional)" maxlength="300" style="width:140px;padding:5px 8px">${FLOW[r.status].map(s => `<button class="small ${s === "REJECTED" ? "ghost" : ""}" type="button" data-id="${r.id}" data-to="${s}">${esc(statusLabel(s))}</button>`).join("")}</div>` : `<span class="muted">final</span>`}</td></tr>`).join("") || `<tr><td colspan="4" class="empty">No reports.</td></tr>`;
+    <td>${(FLOW[r.status] || []).length ? `<div class="row" style="gap:4px"><input id="n-${r.id}" placeholder="note (optional)" maxlength="300" style="width:140px;padding:5px 8px">${FLOW[r.status].map(s => `<button class="small ${s === "REJECTED" ? "ghost" : ""}" type="button" data-id="${r.id}" data-to="${s}">${esc(statusLabel(s))}</button>`).join("")}</div>` : `<span class="muted">final</span>`}</td><td><button class="small ghost" type="button" data-del="${r.id}" data-label="${esc(r.category_label)} · ${esc(r.area)}" aria-label="Delete report ${r.id}" style="color:var(--crit);border-color:var(--crit)">Delete</button></td></tr>`).join("") || `<tr><td colspan="5" class="empty">No reports.</td></tr>`;
 }
 $("stFilter").onchange = loadReports;
 document.addEventListener("click", async e => {
+  const d = e.target.closest("button[data-del]");
+  if (d) {
+    if (!confirm(`Permanently delete report #${d.dataset.del} (${d.dataset.label})?\n\nIts photo and status history are deleted too. This can't be undone.`)) return;
+    d.disabled = true;
+    try { await api("/admin/reports/" + d.dataset.del, { method: "DELETE" }); toast(`Report ${d.dataset.del} deleted.`); load(); }
+    catch (err) { toast(err.msg); d.disabled = false; }
+    return;
+  }
   const b = e.target.closest("button[data-to]"); if (!b) return;
   b.disabled = true;
   try { await api("/admin/reports/" + b.dataset.id, { method: "PATCH", body: { status: b.dataset.to, note: ($("n-" + b.dataset.id) || {}).value || "" } }); toast(`Report ${b.dataset.id}: ${statusLabel(b.dataset.to)}`); load(); }

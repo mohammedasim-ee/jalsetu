@@ -76,6 +76,20 @@ def update_report(rid: int, body: StatusIn, request: Request, user: dict = Depen
     return get_report(rid)
 
 
+@router.delete("/reports/{rid}")
+def delete_report(rid: int, request: Request, user: dict = Depends(admin_only)):
+    """Permanently delete one report, its photo (stored in the same row) and its status history."""
+    r = db.one("SELECT id, category, area, status, is_demo FROM reports WHERE id=?", (rid,))
+    if not r:
+        raise HTTPException(404, "Report not found.")
+    with db.db() as c:   # one transaction: history and report go together or not at all
+        c.execute("DELETE FROM report_events WHERE report_id=?", (rid,))
+        c.execute("DELETE FROM reports WHERE id=?", (rid,))
+    auth.audit(user, "report_delete", f"report:{rid}",
+               f"{r['category']} · {r['area']} · was {r['status']}{' · demo' if r['is_demo'] else ''}", request)
+    return {"deleted": rid}
+
+
 class ReservoirIn(BaseModel):
     reservoir_id: str = Field(pattern=r"^[a-z0-9_]{2,40}$")
     reservoir: str = Field(min_length=2, max_length=80)
