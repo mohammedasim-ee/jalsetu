@@ -1,0 +1,32 @@
+{
+  "_note": "Official figures shown on the Now tab. Update these numbers and dates when new data is published; the server recalculates the warning.",
+  "rain": {
+    "period": "1 Jun – 28 Sep 2026",
+    "as_of": "2026-09-28",
+    "districts": [
+      {"name": "Bengaluru Urban", "actual_mm": 227.7, "normal_mm": 441.6},
+      {"name": "Bengaluru Rural", "actual_mm": 338.4, "normal_mm": 422.1}
+    ],
+    "source": "IMD Bengaluru, district-wise rainfall summary",
+    "url": "https://mausam.imd.gov.in/bengaluru/mcdata/cum_stats.pdf"
+  },
+  "reservoirs": {
+    "as_of": "2026-09-05",
+    "gross_tmc": 54.99,
+    "capacity_tmc": 86.30,
+    "dams": [
+      {"name": "KRS", "pct": 59.35},
+      {"name": "Kabini", "pct": 57.42},
+      {"name": "Harangi", "pct": 87.52}
+    ],
+    "source": "IBC World News, Cauvery reservoirs",
+    "url": "https://ibcworldnews.com/2026/09/05/cauvery-reservoirs-under-pressure/"
+  },
+  "groundwater": {
+    "as_of": "2024",
+    "pumped_mld": 1372,
+    "recharge_mld": 148,
+    "source": "The Wire (WELL Labs urban water balance)",
+    "url": "https://m.thewire.in/article/environment/whats-causing-bengalurus-water-crisis"
+  }
+}
