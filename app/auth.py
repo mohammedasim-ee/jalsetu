@@ -138,9 +138,9 @@ def ensure_admin_from_env() -> Optional[int]:
     email, pw = os.environ.get("ADMIN_EMAIL", "").strip().lower(), os.environ.get("ADMIN_PASSWORD", "").strip()
     if not email or not pw:
         return None
-    if len(pw) < 12:   # never take the whole site down over a bad setting; just skip the admin account
+    if len(pw) < 8:   # same minimum as every account; never take the whole site down over a bad setting
         import logging
-        logging.getLogger("jalsetu").error("ADMIN_PASSWORD is shorter than 12 characters; admin account not created or updated")
+        logging.getLogger("jalsetu").error("ADMIN_PASSWORD is shorter than 8 characters; admin account not created or updated")
         return None
     u = db.one("SELECT * FROM users WHERE email=?", (email,))
     if u:

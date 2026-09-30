@@ -121,7 +121,7 @@ See [.env.example](.env.example).
 | Variable | Purpose |
 | --- | --- |
 | `DATABASE_URL` | Postgres; empty = SQLite |
-| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Creates the admin account (password 12+ characters) |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Creates the admin account (password 8+ characters) |
 | `ANTHROPIC_API_KEY` | Optional AI |
 | `JALSETU_DEMO=1` | Demo rows |
 | `CORS_ORIGINS` | Other sites allowed to call the API |
