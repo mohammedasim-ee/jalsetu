@@ -143,3 +143,13 @@ def test_short_admin_password_does_not_crash(monkeypatch):
     monkeypatch.setenv("ADMIN_PASSWORD", "short")
     assert auth.ensure_admin_from_env() is None
     assert db.one("SELECT id FROM users WHERE email='other-admin@jalsetu.test'") is None
+
+
+def test_admin_login_applies_current_settings_and_health_reports_it(c, monkeypatch):
+    monkeypatch.setenv("ADMIN_PASSWORD", "changed-later-pass")
+    r = c.post("/api/auth/login", json={"email": " Admin@JalSetu.test ", "password": "changed-later-pass "})
+    assert r.status_code == 200 and r.json()["user"]["role"] == "admin"
+    h = c.get("/api/health").json()["admin"]
+    assert h == {"settings_present": True, "password_long_enough": True, "account_exists": True}
+    monkeypatch.setenv("ADMIN_PASSWORD", "correct-horse-battery")
+    assert c.post("/api/auth/login", json={"email": "admin@jalsetu.test", "password": "correct-horse-battery"}).status_code == 200

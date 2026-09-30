@@ -143,7 +143,17 @@ def health():
             "data_mode": "DEMONSTRATION + official data" if demo else "official data + community submissions",
             "data_pipeline": {"generated_at": ds.manifest()["generated_at"], "version": ds.manifest()["pipeline_version"]},
             "models": {"version": m["version"], "trained_at": m["trained_at"]} if m else None,
+            "admin": {"settings_present": bool(os.environ.get("ADMIN_EMAIL", "").strip() and os.environ.get("ADMIN_PASSWORD", "").strip()),
+                      "password_long_enough": len(os.environ.get("ADMIN_PASSWORD", "").strip()) >= 8,
+                      "account_exists": _admin_exists()},
             "uptime_s": round(time.time() - STARTED), **counts}
+
+
+def _admin_exists() -> bool:
+    try:
+        return bool(db.one("SELECT id FROM users WHERE role='admin' LIMIT 1"))
+    except Exception:
+        return False
 
 
 @app.get("/api/meta")

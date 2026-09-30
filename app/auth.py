@@ -76,9 +76,13 @@ def public_user(u: dict) -> dict:
 
 
 def login(email: str, password: str) -> tuple[str, dict]:
-    u = db.one("SELECT * FROM users WHERE email=?", (email.strip().lower(),))
+    email = email.strip().lower()
+    if email and email == os.environ.get("ADMIN_EMAIL", "").strip().lower():
+        ensure_admin_from_env()   # apply the current ADMIN_* settings even if startup ran before they changed
+    u = db.one("SELECT * FROM users WHERE email=?", (email,))
     # verify against a dummy hash when the user doesn't exist, so timing doesn't reveal which emails exist
-    ok = verify_password(password, u["password_hash"] if u else _DUMMY)
+    stored = u["password_hash"] if u else _DUMMY
+    ok = verify_password(password, stored) or (password != password.strip() and verify_password(password.strip(), stored))
     if not u or not ok:
         raise HTTPException(401, "Email or password is incorrect.")
     token = secrets.token_urlsafe(32)
